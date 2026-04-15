@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交通运输系统工程（第三版）辅助教学系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, chtml: { displayAlign: 'center' } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/vs2015.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    
+    <style>
+        body { font-family: -apple-system, "Noto Sans SC", sans-serif; background-color: #f1f5f9; overflow-x: hidden; }
+        
+        /* 紧凑型卡片布局 */
+        .compact-card { background-color: white; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card-header { font-size: 1.05rem; font-weight: bold; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem; margin-bottom: 1rem; color: #1e293b; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* 导航与按钮 */
+        .nav-active { color: #2563eb !important; border-bottom: 2px solid #2563eb !important; font-weight: bold; background-color: #eff6ff !important; }
+        .step-btn-active { background-color: #2563eb !important; color: white !important; border-color: #2563eb !important; }
+        .matrix-btn-active { background-color: #eff6ff; border-color: #3b82f6; color: #1d4ed8; font-weight: bold; }
+        
+        /* 滑块定制样式 */
+        .scale-slider { -webkit-appearance: none; width: 100%; height: 5px; border-radius: 3px; background: #cbd5e1; outline: none; }
+        .scale-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #2563eb; cursor: pointer; transition: transform 0.1s; box-shadow: 0 0 3px rgba(0,0,0,0.3); }
+        .scale-slider::-webkit-slider-thumb:hover { transform: scale(1.3); }
+        .expert-slider { accent-color: #2563eb; width: 100%; height: 4px; }
+
+        /* 数学公式容器 */
+        .matrix-container { display: flex; justify-content: center; align-items: center; width: 100%; min-height: 140px; overflow: visible !important; font-size: 1.2rem; color: #0f172a; }
+        .math-card { border-left: 4px solid #3b82f6; background-color: #f8fafc; padding: 1.5rem; border-radius: 0.5rem; margin: 0.5rem 0; overflow-x: auto; }
+        
+        /* 表格样式 */
+        .academic-table th { background-color: #f8fafc; color: #475569; font-weight: bold; border-bottom: 2px solid #cbd5e1; padding: 10px; font-size: 0.9rem; }
+        .academic-table td { border-bottom: 1px solid #e2e8f0; padding: 10px; font-size: 0.9rem; }
+        .current-row td { background-color: #eff6ff !important; font-weight: bold; color: #1d4ed8; border-top: 1px solid #bfdbfe; border-bottom: 1px solid #bfdbfe; }
+        
+        /* 过渡动画 */
+        .animate-fadeIn { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* SD 流程图容器 */
+        .diagram-stage {
+            min-height: 480px; height: 480px; border-radius: 12px; border: 1px dashed rgba(82, 110, 180, 0.18);
+            background: linear-gradient(180deg, rgba(243,247,255,0.86), rgba(247,250,255,0.96)); overflow: hidden; position: relative; cursor: grab;
+        }
+        .diagram-stage.dragging { cursor: grabbing; }
+        .diagram-container { width: 100%; height: 100%; transform-origin: 0 0; user-select: none; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+
+    <header class="bg-white border-b sticky top-0 z-[100] shadow-md">
+        <div class="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between px-6 py-3">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-graduation-cap text-3xl text-blue-600"></i>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-wide leading-tight text-slate-900">交通运输系统工程（第三版）辅助教学系统</h1>
+                    <p class="text-slate-500 text-xs uppercase tracking-wider font-bold mt-0.5">全景交互演算与多模型仿真平台</p>
+                </div>
+            </div>
+            
+            <div class="mt-3 md:mt-0 flex items-center gap-3">
+                <span class="text-sm font-bold text-slate-600"><i class="fa-solid fa-book text-blue-500 mr-1"></i> 教学例题：</span>
+                <select id="main-app-selector" class="px-4 py-2.5 border border-blue-300 rounded-lg font-bold text-slate-700 bg-blue-50/50 shadow-sm outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition-all" onchange="handleAppSelect(this.value)">
+                    <option value="gm">例 6-8: 灰色预测模型 GM(1,1)</option>
+                    <option value="ahp">例 8-9: 层次分析法 (AHP)</option>
+                    <option value="gahp">例 8-10: 群组层次分析法 (Group AHP)</option>
+                    <option value="sd_pos">例 5-5: 一阶正反馈系统 (铁路客运量)</option>
+                    <option value="sd_neg">例 5-6: 一阶负反馈系统 (库存控制)</option>
+                    <option value="sd_sec">例 5-7: 二阶负反馈系统 (人才培养)</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow p-6 flex justify-center items-start">
+        <div class="max-w-[1600px] w-full relative">
+
+            <div id="app-gm" class="app-container space-y-6">
+                <nav class="bg-white shadow-sm flex justify-center gap-8 text-base rounded-lg border overflow-hidden">
+                    <button onclick="switchTabGM('sandbox')" id="gm-nav-sandbox" class="nav-active py-3.5 px-8 flex items-center gap-2"><i class="fa-solid fa-flask"></i> 一屏动态沙盒</button>
+                    <button onclick="switchTabGM('steps')" id="gm-nav-steps" class="py-3.5 px-8 flex items-center gap-2 text-slate-600 hover:bg-slate-50 transition-all"><i class="fa-solid fa-list-check"></i> 步骤详解</button>
+                    <button onclick="switchTabGM('code')" id="gm-nav-code" class="py-3.5 px-8 flex items-center gap-2 text-slate-600 hover:bg-slate-50 transition-all"><i class="fa-solid fa-code"></i> 算法源码</button>
+                    <button onclick="switchTabGM('analysis')" id="gm-nav-analysis" class="py-3.5 px-8 flex items-center gap-2 text-slate-600 hover:bg-slate-50 transition-all"><i class="fa-solid fa-chart-pie"></i> 结果深度分析</button>
+                </nav>
+
+                <section id="gm-tab-sandbox" class="animate-fadeIn flex flex-col gap-6">
+                    <div class="flex flex-col lg:flex-row gap-6">
+                        <div class="w-full lg:w-1/3 compact-card flex flex-col">
+                            <div class="card-header"><span class="text-blue-600"><i class="fa-solid fa-sliders mr-1"></i> 全局参数控制</span></div>
+                            <div class="space-y-6 flex-grow justify-center flex flex-col px-2 py-4">
+                                <div>
+                                    <label class="text-sm font-bold text-slate-500 flex justify-between"><span>发展系数 $a$</span><span class="text-blue-500 font-mono">-1.0 ~ 1.0</span></label>
+                                    <div class="flex gap-3 items-center mt-2"><input type="range" id="gm-slide-a" min="-1.0" max="1.0" step="0.0001" value="-0.1325" class="flex-grow scale-slider"><input type="number" id="gm-num-a" step="0.0001" value="-0.13253" class="w-24 border rounded px-1 py-1 text-sm font-mono bg-blue-50 text-blue-900 text-center shadow-inner"></div>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-bold text-slate-500 flex justify-between"><span>灰色作用量 $u$</span><span class="text-blue-500 font-mono">1000 ~ 15000</span></label>
+                                    <div class="flex gap-3 items-center mt-2"><input type="range" id="gm-slide-u" min="1000" max="15000" step="1" value="6712" class="flex-grow scale-slider"><input type="number" id="gm-num-u" step="0.001" value="6712.085" class="w-24 border rounded px-1 py-1 text-sm font-mono bg-blue-50 text-blue-900 text-center shadow-inner"></div>
+                                </div>
+                                <div class="p-4 bg-emerald-50/60 border border-emerald-100 rounded-lg mt-2">
+                                    <label class="text-sm font-bold text-slate-600 flex justify-between"><span>向未来预测步长 $k$</span><span class="text-emerald-700 font-bold" id="gm-label-k">1 年</span></label>
+                                    <div class="flex gap-3 items-center mt-3"><input type="range" id="gm-slide-k" min="1" max="10" step="1" value="1" class="flex-grow scale-slider" style="background: #a7f3d0;"><input type="number" id="gm-num-k" min="1" max="10" step="1" value="1" class="w-16 border border-emerald-200 rounded px-1 py-1 text-sm font-mono text-center bg-white shadow-sm"></div>
+                                </div>
+                            </div>
+                            <button onclick="resetParamsGM()" class="w-full mt-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded text-sm font-bold transition-all border border-slate-300 shadow-sm"><i class="fa-solid fa-rotate-left mr-1"></i> 还原标准参数 (例6-8)</button>
+                        </div>
+                        <div class="w-full lg:w-2/3 compact-card flex flex-col">
+                            <div class="card-header">
+                                <span><i class="fa-solid fa-chart-area text-emerald-500 mr-1"></i> 实时时空映射图</span>
+                                <span class="text-xs font-normal bg-slate-100 text-slate-500 px-3 py-1 rounded-full border border-slate-200"><i class="fa-solid fa-link text-blue-500"></i> 无延迟参数联动</span>
+                            </div>
+                            <div class="flex-grow relative min-h-[300px] w-full" id="gm-sandboxChart-container"><canvas id="gm-sandboxChart"></canvas></div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="compact-card flex flex-col bg-blue-50/40 border-blue-100">
+                            <div class="text-sm font-bold text-blue-800 mb-3 flex items-center gap-2 border-b border-blue-100 pb-2"><span class="w-5 h-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">1</span> 连续时间解 $\hat{x}^{(1)}(t)$</div>
+                            <div id="gm-math-continuous" class="matrix-container flex-grow text-blue-900 text-xl font-serif"></div>
+                        </div>
+                        <div class="compact-card flex flex-col bg-indigo-50/40 border-indigo-100">
+                            <div class="text-sm font-bold text-indigo-800 mb-3 flex items-center gap-2 border-b border-indigo-100 pb-2"><span class="w-5 h-5 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs">2</span> 离散响应式 $\hat{x}^{(1)}(i+1)$</div>
+                            <div id="gm-math-discrete" class="matrix-container flex-grow text-indigo-900 text-xl font-serif"></div>
+                        </div>
+                        <div class="compact-card flex flex-col bg-emerald-50/60 border-emerald-300 shadow-md relative overflow-hidden">
+                            <div class="absolute top-0 right-0 bg-emerald-500 text-white text-xs px-3 py-1 rounded-bl-lg font-bold shadow">最终输出序列</div>
+                            <div class="text-sm font-bold text-emerald-800 mb-3 flex items-center gap-2 border-b border-emerald-200 pb-2"><span class="w-5 h-5 bg-emerald-600 text-white rounded-full flex items-center justify-center text-xs">3</span> 累减还原预测式 $\hat{x}^{(0)}(i+1)$</div>
+                            <div id="gm-math-restitution" class="matrix-container flex-grow text-emerald-900 font-bold text-2xl font-serif"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="gm-tab-steps" class="hidden compact-card py-8 px-10">
+                    <div class="flex gap-3 mb-8 border-b pb-4 overflow-x-auto">
+                        <button onclick="showStepGM(1)" class="gm-step-btn step-btn-active px-5 py-2.5 rounded-lg text-sm font-bold border transition-all">1. 累加生成</button>
+                        <button onclick="showStepGM(2)" class="gm-step-btn px-5 py-2.5 rounded-lg text-sm font-bold border transition-all text-slate-600 bg-slate-50 hover:bg-slate-100">2. 构造矩阵</button>
+                        <button onclick="showStepGM(3)" class="gm-step-btn px-5 py-2.5 rounded-lg text-sm font-bold border transition-all text-slate-600 bg-slate-50 hover:bg-slate-100">3. 参数估计</button>
+                        <button onclick="showStepGM(4)" class="gm-step-btn px-5 py-2.5 rounded-lg text-sm font-bold border transition-all text-slate-600 bg-slate-50 hover:bg-slate-100">4. 模型建立</button>
+                        <button onclick="showStepGM(5)" class="gm-step-btn px-5 py-2.5 rounded-lg text-sm font-bold border transition-all text-slate-600 bg-slate-50 hover:bg-slate-100">5. 精度检验</button>
+                    </div>
+                    <div id="gm-step-content" class="min-h-[400px]"></div>
+                </section>
+
+                <section id="gm-tab-code" class="hidden bg-[#1e1e1e] p-10 rounded-xl shadow-xl text-white border border-slate-800">
+                    <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold flex items-center gap-3"><i class="fa-brands fa-python text-yellow-400"></i> GM(1,1) Python 底层核心实现</h3></div>
+<pre class="rounded-lg overflow-hidden text-[14px] m-0 p-6 bg-black/50 shadow-inner"><code class="language-python">import numpy as np
+
+def gm11_predict(x0, forecast_steps=1):
+    """灰色预测模型 GM(1,1)"""
+    n = len(x0)
+    # 1. 累加生成 (1-AGO)
+    x1 = np.cumsum(x0) 
+    # 2. 构造背景值及 B 矩阵、Y 向量
+    z1 = 0.5 * (x1[:-1] + x1[1:]) 
+    B = np.vstack((-z1, np.ones_like(z1))).T
+    Y = x0[1:].reshape(-1, 1)
+    # 3. 最小二乘法求参数 a, u
+    a, u = np.linalg.inv(B.T @ B) @ B.T @ Y 
+    a, u = a[0], u[0]
+    # 4. 时间响应函数
+    def response(k): 
+        return (x0[0] - u/a) * np.exp(-a * k) + u/a 
+    # 5. 累减还原
+    pred_x1 = np.array([response(i) for i in range(n + forecast_steps)]) 
+    pred_x0 = np.concatenate(([x0[0]], np.diff(pred_x1)))
+    return a, u, pred_x0
+
+# ================= 运行例题 6-8 数据 =================
+traffic_data = np.array([6986, 8013, 9353, 10821, 12304, 13755])
+a, u, results = gm11_predict(traffic_data, forecast_steps=1)
+print(f"发展系数 a: {a:.5f}\n灰色作用量 u: {u:.3f}\n2025年预测值: {results[-1]:.0f} pcu/d")</code></pre>
+                </section>
+
+                <section id="gm-tab-analysis" class="hidden space-y-6">
+                    <div class="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-lg text-sm flex items-center justify-between shadow-sm">
+                        <span class="flex items-center"><i class="fa-solid fa-circle-info mr-2 text-xl"></i><strong>全局联动：</strong> 下方所有图表与分析报告均基于您在【推演沙盒】中设置的参数实时生成。</span>
+                        <span class="bg-white px-3 py-1.5 rounded-lg text-sm font-mono font-bold border border-blue-200 shadow-sm">a = <span id="gm-ana-tag-a"></span> | u = <span id="gm-ana-tag-u"></span> | k = <span id="gm-ana-tag-k"></span></span>
+                    </div>
+                    <div class="flex flex-col lg:flex-row gap-6">
+                        <div class="w-full lg:w-2/3 compact-card flex flex-col">
+                            <div class="flex gap-4 border-b border-slate-200 pb-1">
+                                <button onclick="switchAnalysisChartGM('compare')" id="gm-ana-btn-compare" class="pb-3 border-b-2 border-blue-500 font-bold text-base text-blue-600 transition-all">预测对比曲线</button>
+                                <button onclick="switchAnalysisChartGM('ago')" id="gm-ana-btn-ago" class="pb-3 border-b-2 border-transparent text-base text-slate-500 hover:text-slate-800 transition-all">累加生成序列图</button>
+                                <button onclick="switchAnalysisChartGM('error')" id="gm-ana-btn-error" class="pb-3 border-b-2 border-transparent text-base text-slate-500 hover:text-slate-800 transition-all">相对残差分析</button>
+                            </div>
+                            <div class="flex-grow w-full min-h-[350px] mt-4" id="gm-analysis-chart-container"><canvas id="gm-analysisChart"></canvas></div>
+                        </div>
+                        <div class="w-full lg:w-1/3 compact-card flex flex-col">
+                            <div class="card-header"><span class="text-slate-800"><i class="fa-solid fa-magnifying-glass-chart text-blue-500 mr-2"></i>动态精度评价报告</span></div>
+                            <div class="space-y-4 mt-2 flex-grow flex flex-col justify-center" id="gm-stat-cards"></div>
+                        </div>
+                    </div>
+                    <div class="compact-card overflow-x-auto">
+                        <div class="card-header mb-4 text-lg"><span class="text-slate-800"><i class="fa-solid fa-table text-blue-500 mr-2"></i>预测结果追踪明细表</span></div>
+                        <table class="w-full text-center text-base academic-table">
+                            <thead><tr><th>时间节点</th><th>数据属性</th><th>原始观测值 $x^{(0)}$</th><th>模型预测值 $\hat{x}^{(0)}$</th><th>绝对残差</th><th>相对残差 $\Delta^{(0)}$</th></tr></thead>
+                            <tbody id="gm-analysis-tbody"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <div id="app-ahp" class="app-container space-y-6 hidden">
+                <nav class="bg-white shadow-sm flex justify-center gap-8 text-base rounded-lg border overflow-hidden">
+                    <button onclick="switchTabAHP('sandbox')" id="ahp-nav-sandbox" class="nav-active py-3.5 px-8 flex items-center gap-2"><i class="fa-solid fa-sitemap"></i> 一屏矩阵推演</button>
+                    <button onclick="switchTabAHP('steps')" id="ahp-nav-steps" class="py-3.5 px-8 flex items-center gap-2 text-slate-600 hover:bg-slate-50 transition-all"><i class="fa-solid fa-list-check"></i> 步骤详解</button>
+                    <button onclick="switchTabAHP('code')" id="ahp-nav-code" class="py-3.5 px-8 flex items-center gap-2 text-slate-600 hover:bg-slate-50 transition-all"><i class="fa-solid fa-code"></i> AHP 算法源码</button>
+                    <button onclick="switchTabAHP('analysis')" id="ahp-nav-analysis" class="py-3.5 px-8 flex items-center gap-2 text-slate-600 hover:bg-slate-50 transition-all"><i class="fa-solid fa-chart-pie"></i> 综合分析</button>
+                </nav>
+
+                <section id="ahp-tab-sandbox" class="animate-fadeIn flex flex-col gap-6">
+                    <div class="compact-card flex gap-3 overflow-x-auto items-center py-2.5 px-4 hide-scroll">
+                        <span class="text-sm font-bold text-slate-600 mr-2 whitespace-nowrap"><i class="fa-solid fa-layer-group text-blue-500 text-lg align-middle"></i> 矩阵选择：</span>
+                        <button onclick="selectMatrixAHP('CG')" id="btn-mat-CG" class="mat-selector matrix-btn-active px-4 py-2 rounded border text-sm transition-all whitespace-nowrap shadow-sm">准则层 C-G</button>
+                        <button onclick="selectMatrixAHP('BC1')" id="btn-mat-BC1" class="mat-selector px-4 py-2 rounded border text-sm transition-all text-slate-600 bg-slate-50 hover:bg-slate-100 whitespace-nowrap">便利 B-C1</button>
+                        <button onclick="selectMatrixAHP('BC2')" id="btn-mat-BC2" class="mat-selector px-4 py-2 rounded border text-sm transition-all text-slate-600 bg-slate-50 hover:bg-slate-100 whitespace-nowrap">经济 B-C2</button>
+                        <button onclick="selectMatrixAHP('BC3')" id="btn-mat-BC3" class="mat-selector px-4 py-2 rounded border text-sm transition-all text-slate-600 bg-slate-50 hover:bg-slate-100 whitespace-nowrap">安全 B-C3</button>
+                        <button onclick="selectMatrixAHP('BC4')" id="btn-mat-BC4" class="mat-selector px-4 py-2 rounded border text-sm transition-all text-slate-600 bg-slate-50 hover:bg-slate-100 whitespace-nowrap">迅速 B-C4</button>
+                        <div class="ml-auto flex gap-3 whitespace-nowrap pl-4 border-l border-slate-200">
+                            <button onclick="resetCurrentMatrixAHP()" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-600 rounded text-xs font-bold border transition-all shadow-sm"><i class="fa-solid fa-rotate-left mr-1"></i> 重置当前</button>
+                            <button onclick="resetAllMatricesAHP()" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded text-xs font-bold border border-red-200 transition-all shadow-sm"><i class="fa-solid fa-bomb mr-1"></i> 全部重置</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <div class="lg:col-span-4 compact-card flex flex-col">
+                            <div class="card-header"><span class="text-blue-600 text-lg"><i class="fa-solid fa-sliders mr-2"></i> <span id="ahp-panel-title">C-G 矩阵标度</span></span></div>
+                            <div class="space-y-4 flex-grow pb-2" id="ahp-sliders-container"></div>
+                        </div>
+                        <div class="lg:col-span-8 compact-card flex flex-col">
+                            <div class="card-header">
+                                <span class="text-slate-800 text-lg"><i class="fa-solid fa-ranking-star text-blue-500 mr-2"></i> 层次总排序 (全局联动)</span>
+                                <span class="text-xs font-bold bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full border border-emerald-200"><i class="fa-solid fa-bolt"></i> 实时合成</span>
+                            </div>
+                            <div class="w-full min-h-[220px] flex-grow relative mt-2" id="ahp-sandboxChart-container"><canvas id="ahp-sandboxChart"></canvas></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <div class="lg:col-span-5 compact-card flex flex-col bg-slate-50/70 border-slate-200 py-4">
+                            <div class="text-sm font-bold text-slate-600 mb-1 text-center border-b pb-2">互反判断矩阵 $A$</div>
+                            <div id="ahp-math-matrix" class="matrix-container text-xl font-serif min-h-[140px]"></div>
+                        </div>
+                        <div class="lg:col-span-4 compact-card flex flex-col bg-blue-50/40 border-blue-200 shadow-sm py-4">
+                            <div class="text-sm font-bold text-blue-800 mb-1 text-center border-b border-blue-200 pb-2">单排序权重向量 $W$</div>
+                            <div id="ahp-math-weights" class="matrix-container text-xl text-blue-900 font-serif min-h-[140px]"></div>
+                        </div>
+                        <div class="lg:col-span-3 compact-card flex flex-col justify-center py-4">
+                            <div class="text-sm font-bold text-slate-600 mb-3 border-b pb-2 text-center">一致性检验 (CR)</div>
+                            <div id="ahp-cr-alert" class="p-3 rounded-lg border-2 flex flex-col items-center justify-center transition-all text-center flex-grow shadow-inner">
+                                <div class="font-bold text-base mb-1" id="ahp-cr-title">计算中...</div>
+                                <div class="text-sm font-mono opacity-90 w-full overflow-x-auto whitespace-nowrap hide-scroll" id="ahp-cr-details">...</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="ahp-tab-steps" class="hidden compact-card py-8 px-10">
+                    <div class="flex gap-3 mb-8 border-b pb-4 overflow-x-auto">
+                        <button onclick="showStepAHP(1)" class="ahp-step-btn step-btn-active px-5 py-2.5 rounded-lg text-sm font-bold border transition-all">1. 建立模型</button>
+                        <button onclick="showStepAHP(2)" class="ahp-step-btn px-5 py-2.5 rounded-lg text-sm font-bold border transition-all text-slate-600 bg-slate-50 hover:bg-slate-100">2. 构造矩阵</button>
+                        <button onclick="showStepAHP(3)" class="ahp-step-btn px-5 py-2.5 rounded-lg text-sm font-bold border transition-all text-slate-600 bg-slate-50 hover:bg-slate-100">3. 层次单排序</button>
+                        <button onclick="showStepAHP(4)" class="ahp-step-btn px-5 py-2.5 rounded-lg text-sm font-bold border transition-all text-slate-600 bg-slate-50 hover:bg-slate-100">4. 一致性检验</button>
+                        <button onclick="showStepAHP(5)" class="ahp-step-btn px-5 py-2.5 rounded-lg text-sm font-bold border transition-all text-slate-600 bg-slate-50 hover:bg-slate-100">5. 层次总排序</button>
+                    </div>
+                    <div id="ahp-step-content" class="min-h-[450px]"></div>
+                </section>
+
+                <section id="ahp-tab-code" class="hidden bg-[#1e1e1e] p-8 rounded-xl shadow-xl text-white border border-slate-800">
+                    <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold flex items-center gap-3"><i class="fa-brands fa-python text-yellow-400"></i> AHP 核心算法 Python 实现</h3></div>
+<pre class="rounded-lg overflow-hidden text-[14px] m-0 p-6 bg-black/50 shadow-inner"><code class="language-python">import numpy as np
+
+def ahp_analyze(matrix):
+    """层次分析法核心计算：特征根法"""
+    n = matrix.shape[0]
+    eigenvalues, eigenvectors = np.linalg.eig(matrix)
+    max_idx = np.argmax(np.real(eigenvalues))
+    lambda_max = np.real(eigenvalues[max_idx])
+    w = np.real(eigenvectors[:, max_idx])
+    weights = w / np.sum(w)
+    
+    CI = (lambda_max - n) / (n - 1)
+    RI_dict = {1:0, 2:0, 3:0.52, 4:0.89, 5:1.12, 6:1.26, 7:1.36, 8:1.41, 9:1.46, 10:1.49}
+    RI = RI_dict.get(n, 1.54)
+    CR = (CI / RI) if (n > 2 and RI > 0) else 0.0
+    return weights, lambda_max, CI, CR, CR < 0.1
+
+# ================= 运行例题 8-9 的 C-G 矩阵 =================
+matrix = [[1, 3, 7, 9], [1/3, 1, 5, 7], [1/7, 1/5, 1, 3], [1/9, 1/7, 1/3, 1]]
+w, l_max, ci, cr, valid = ahp_analyze(np.array(matrix))
+print(f"权重向量 W: {np.round(w, 4)}\n一致性比例 CR: {cr:.4f}")</code></pre>
+                </section>
+
+                <section id="ahp-tab-analysis" class="hidden space-y-6">
+                    <div class="bg-blue-50 border border-blue-200 text-blue-800 p-5 rounded-lg text-base flex items-start gap-4 shadow-sm">
+                        <i class="fa-solid fa-circle-info text-2xl mt-0.5"></i>
+                        <div><strong>全局数据驱动：</strong> 下方的雷达图与汇总表完全基于您在【推演沙盒】中实时设定的 <strong>5 个判断矩阵</strong>生成。任何一个子矩阵的细微变动，都会通过矩阵乘法 $W_{total} = W_{CG} \times W_{BC}$ 逐级传导，精确反映在最终决策结果中。</div>
+                    </div>
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                        <div class="bg-white p-8 rounded-xl shadow-sm border flex flex-col items-center h-[650px]">
+                            <h3 class="font-bold border-b w-full pb-3 text-lg text-slate-800"><i class="fa-solid fa-radar mr-2"></i>各方案优势维度雷达图</h3>
+                            <div class="w-full flex-grow mt-6" id="ahp-radarChart-container"><canvas id="ahp-radarChart"></canvas></div>
+                        </div>
+                        <div class="bg-white p-8 rounded-xl shadow-sm border overflow-x-auto flex flex-col h-[650px]">
+                            <h3 class="font-bold border-b w-full pb-3 mb-6 text-lg text-slate-800"><i class="fa-solid fa-table mr-2"></i>层次总排序明细追踪表</h3>
+                            <table class="w-full text-center text-base academic-table mt-2">
+                                <thead><tr><th>方案 $B_i$</th><th>$C_1$ (便利)</th><th>$C_2$ (经济)</th><th>$C_3$ (安全)</th><th>$C_4$ (迅速)</th><th class="text-blue-700 bg-blue-50">总权重</th></tr></thead>
+                                <tbody id="ahp-analysis-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div id="app-gahp" class="app-container space-y-6 hidden">
+                <nav class="bg-white shadow-sm flex justify-center gap-6 text-base rounded-lg border overflow-x-auto px-2">
+                    <button onclick="switchTabGAHP('individual')" id="gahp-nav-individual" class="nav-active py-3.5 px-6 flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-microscope"></i> 个体专家演算</button>
+                    <button onclick="switchTabGAHP('sandbox')" id="gahp-nav-sandbox" class="py-3.5 px-6 flex items-center gap-2 text-slate-600 hover:bg-slate-50 transition-all whitespace-nowrap"><i class="fa-solid fa-users-gear"></i> 群体合成沙盒</button>
+                    <button onclick="switchTabGAHP('steps')" id="gahp-nav-steps" class="py-3.5 px-6 flex items-center gap-2 text-slate-600 hover:bg-slate-50 transition-all whitespace-nowrap"><i class="fa-solid fa-vials"></i> 步骤详解</button>
+                    <button onclick="switchTabGAHP('code')" id="gahp-nav-code" class="py-3.5 px-6 flex items-center gap-2 text-slate-600 hover:bg-slate-50 transition-all whitespace-nowrap"><i class="fa-solid fa-code"></i> 算法源码</button>
+                    <button onclick="switchTabGAHP('analysis')" id="gahp-nav-analysis" class="py-3.5 px-6 flex items-center gap-2 text-slate-600 hover:bg-slate-50 transition-all whitespace-nowrap"><i class="fa-solid fa-chart-bar"></i> 综合排序</button>
+                </nav>
+
+                <section id="gahp-tab-individual" class="animate-fadeIn flex flex-col gap-6">
+                    <div class="bg-blue-50 border border-blue-200 text-blue-800 p-5 rounded-lg text-base flex items-start gap-4 shadow-sm">
+                        <i class="fa-solid fa-circle-info text-2xl mt-0.5"></i>
+                        <div>
+                            <strong>核心解析：</strong> 教材表 8-23 中“专家 1 的总排序结果”是如何得出的？
+                            在此页面，您可以 <strong>自由滑动调节专家 1 的 5 个底层判断矩阵</strong>。
+                            系统的联动引擎会将您的修改转化为单排序向量，并实时推导至最终的群组决策中！
+                        </div>
+                    </div>
+
+                    <div class="compact-card flex gap-3 overflow-x-auto items-center py-2.5 px-4 hide-scroll">
+                        <span class="text-sm font-bold text-slate-600 mr-2 whitespace-nowrap"><i class="fa-solid fa-user-edit text-blue-500 text-lg align-middle"></i> 专家1子矩阵：</span>
+                        <button onclick="selectMatrixGAHPExp1('BA')" id="btn-gahp-mat-BA" class="gahp-mat-selector matrix-btn-active px-4 py-2 rounded-lg border text-sm transition-all whitespace-nowrap shadow-sm">B-A (主因素)</button>
+                        <button onclick="selectMatrixGAHPExp1('B1')" id="btn-gahp-mat-B1" class="gahp-mat-selector px-4 py-2 rounded-lg border text-sm transition-all text-slate-600 bg-slate-50 hover:bg-slate-100 whitespace-nowrap">B1 (经济效益)</button>
+                        <button onclick="selectMatrixGAHPExp1('B2')" id="btn-gahp-mat-B2" class="gahp-mat-selector px-4 py-2 rounded-lg border text-sm transition-all text-slate-600 bg-slate-50 hover:bg-slate-100 whitespace-nowrap">B2 (内部运作)</button>
+                        <button onclick="selectMatrixGAHPExp1('B3')" id="btn-gahp-mat-B3" class="gahp-mat-selector px-4 py-2 rounded-lg border text-sm transition-all text-slate-600 bg-slate-50 hover:bg-slate-100 whitespace-nowrap">B3 (作业质量)</button>
+                        <button onclick="selectMatrixGAHPExp1('B4')" id="btn-gahp-mat-B4" class="gahp-mat-selector px-4 py-2 rounded-lg border text-sm transition-all text-slate-600 bg-slate-50 hover:bg-slate-100 whitespace-nowrap">B4 (效果反馈)</button>
+                        <div class="ml-auto pl-4 border-l border-slate-200">
+                            <button onclick="resetGAHPExp1Matrix()" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-600 rounded-lg text-xs font-bold border transition-all shadow-sm whitespace-nowrap"><i class="fa-solid fa-rotate-left mr-1"></i> 还原专家1原始判断</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+                        <div class="xl:col-span-4 flex flex-col gap-6">
+                            <div class="compact-card flex flex-col flex-grow">
+                                <div class="card-header"><span class="text-blue-600 text-lg"><i class="fa-solid fa-sliders mr-2"></i> <span id="gahp-panel-title">B-A 矩阵标度</span></span></div>
+                                <div class="space-y-6 flex-grow py-2" id="gahp-sliders-container-exp1"></div>
+                            </div>
+                            <div class="compact-card flex flex-col justify-center">
+                                <div class="text-sm font-bold text-slate-600 mb-3 border-b pb-2 text-center">一致性检验 (CR)</div>
+                                <div id="gahp-cr-alert-exp1" class="p-4 rounded-xl border-2 flex flex-col items-center justify-center transition-all text-center flex-grow shadow-inner">
+                                    <div class="font-bold text-lg mb-2" id="gahp-cr-title-exp1">计算中...</div>
+                                    <div class="text-sm font-mono opacity-90 w-full overflow-x-auto whitespace-nowrap hide-scroll" id="gahp-cr-details-exp1">...</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="xl:col-span-8 flex flex-col gap-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="compact-card flex flex-col bg-slate-50/70 border-slate-200">
+                                    <div class="text-sm font-bold text-slate-600 mb-2 text-center border-b pb-2">互反判断矩阵 $A$</div>
+                                    <div id="gahp-math-matrix-exp1" class="matrix-container text-xl font-serif min-h-[140px]"></div>
+                                </div>
+                                <div class="compact-card flex flex-col bg-blue-50/40 border-blue-200 shadow-sm">
+                                    <div class="text-sm font-bold text-blue-800 mb-2 text-center border-b border-blue-200 pb-2">单排序权重向量 $W$</div>
+                                    <div id="gahp-math-weights-exp1" class="matrix-container text-xl text-blue-900 font-serif min-h-[140px]"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="compact-card flex flex-col flex-grow overflow-x-auto w-full">
+                                <div class="card-header">
+                                    <span class="text-slate-800 text-lg"><i class="fa-solid fa-table text-blue-500 mr-2"></i> 表 8-23 还原：专家 1 层次总排序追踪</span>
+                                    <span class="text-xs font-bold bg-amber-50 text-amber-600 px-3 py-1.5 rounded-full border border-amber-200"><i class="fa-solid fa-bolt"></i> 实时联动上方矩阵</span>
+                                </div>
+                                <table class="w-full text-center academic-table mt-2">
+                                    <thead><tr><th class="text-sm">子因素 $B_{ij}$</th><th id="gahp-th-b1" class="text-sm">B1</th><th id="gahp-th-b2" class="text-sm">B2</th><th id="gahp-th-b3" class="text-sm">B3</th><th id="gahp-th-b4" class="text-sm">B4</th><th class="text-blue-700 bg-blue-50 text-sm">总权重</th></tr></thead>
+                                    <tbody id="gahp-exp1-tbody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="gahp-tab-sandbox" class="hidden animate-fadeIn flex flex-col gap-6">
+                    <div class="flex flex-col lg:flex-row gap-6">
+                        <div class="w-full lg:w-1/3 compact-card flex flex-col">
+                            <div class="card-header flex justify-between items-center">
+                                <span class="text-blue-600 text-lg"><i class="fa-solid fa-user-tie mr-2"></i>专家权重 $\lambda_k$</span>
+                                <button onclick="resetExpertWeightsGAHP()" class="text-xs text-blue-600 hover:underline border bg-slate-50 px-2 py-1 rounded shadow-sm">还原默认</button>
+                            </div>
+                            <div id="gahp-expert-sliders" class="space-y-4 flex-grow py-2"></div>
+                        </div>
+                        <div class="w-full lg:w-2/3 compact-card flex flex-col">
+                            <div class="card-header"><span class="text-slate-800 text-lg"><i class="fa-solid fa-chart-bar text-blue-500 mr-2"></i> 指标综合权重演化</span></div>
+                            <div class="flex-grow min-h-[450px] relative mt-2" id="gahp-mainChart-container"><canvas id="gahp-mainChart"></canvas></div>
+                            <div class="mt-6 p-5 bg-slate-50 rounded-xl border border-dashed border-slate-300 shadow-sm">
+                                <h4 class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-3 text-center">加权算术平均合成公式</h4>
+                                <div id="gahp-math-formula-group" class="text-center text-blue-900 font-serif text-2xl"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="gahp-tab-steps" class="hidden compact-card py-8 px-10">
+                    <div class="flex gap-3 mb-8 border-b pb-4 overflow-x-auto">
+                        <button onclick="showStepGAHP(1)" class="gahp-step-btn step-btn-active px-5 py-2.5 rounded-lg text-sm font-bold border transition-all">1. 建立模型</button>
+                        <button onclick="showStepGAHP(2)" class="gahp-step-btn px-5 py-2.5 rounded-lg text-sm font-bold border transition-all text-slate-600 bg-slate-50 hover:bg-slate-100">2. 个体决策</button>
+                        <button onclick="showStepGAHP(3)" class="gahp-step-btn px-5 py-2.5 rounded-lg text-sm font-bold border transition-all text-slate-600 bg-slate-50 hover:bg-slate-100">3. 专家赋权</button>
+                        <button onclick="showStepGAHP(4)" class="gahp-step-btn px-5 py-2.5 rounded-lg text-sm font-bold border transition-all text-slate-600 bg-slate-50 hover:bg-slate-100">4. 权重合成</button>
+                    </div>
+                    <div id="gahp-step-content" class="min-h-[450px]"></div>
+                </section>
+
+                <section id="gahp-tab-code" class="hidden bg-[#1e1e1e] p-8 rounded-xl shadow-xl text-white border border-slate-800">
+                    <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold flex items-center gap-3"><i class="fa-brands fa-python text-yellow-400"></i> Group AHP Python 实现</h3></div>
+<pre class="rounded-lg overflow-hidden text-[14px] m-0 p-6 bg-black/40"><code class="language-python">import numpy as np
+
+def group_ahp_synthesis(expert_weights, individual_vectors):
+    lambdas = np.array(expert_weights)
+    lambdas = lambdas / np.sum(lambdas) # 归一化
+    final_weights = np.dot(lambdas, individual_vectors)
+    return final_weights
+
+# 专家权重系数
+lambdas = [0.15, 0.15, 0.1, 0.1, 0.05, 0.1, 0.1, 0.05, 0.15, 0.05]
+expert_1_w = np.array([0.0833, 0.0417, 0.1125, 0.0375, 0.1125, 0.1125, 
+                       0.0536, 0.1071, 0.1071, 0.1071, 0.0938, 0.0313])
+# 综合 10 位专家的向量计算 final_w
+final_w = group_ahp_synthesis(lambdas, all_expert_vectors)
+print("最终权重:", np.round(final_w, 4))</code></pre>
+                </section>
+
+                <section id="gahp-tab-analysis" class="hidden compact-card overflow-x-auto py-8 px-10">
+                    <div class="card-header mb-6 px-2"><span class="text-xl text-slate-800"><i class="fa-solid fa-list-ol text-blue-500 mr-2"></i> 综合排序明细表</span> <span class="text-sm font-normal text-slate-500 ml-4 border px-3 py-1.5 rounded bg-slate-50 shadow-sm"><i class="fa-solid fa-link text-blue-400 mr-1"></i>基于沙盒参数实时计算</span></div>
+                    <table class="w-full text-center academic-table mt-4">
+                        <thead><tr><th>细分指标 ($B_{ij}$)</th><th>所属主因素 ($B_i$)</th><th>专家 1 评估 ($W_{j1}$)</th><th class="bg-blue-50 text-blue-700 border-b-2 border-blue-400 text-lg shadow-sm">群组综合 ($W_j$)</th><th>全局排名</th></tr></thead>
+                        <tbody id="gahp-analysis-tbody"></tbody>
+                    </table>
+                </section>
+            </div>
+
+            <div id="app-sd" class="app-container space-y-6 hidden">
+                <nav class="bg-white shadow-sm flex justify-center gap-8 text-base rounded-lg border overflow-hidden">
+                    <button onclick="switchTabSD('sandbox')" id="sd-nav-sandbox" class="nav-active py-3.5 px-8 flex items-center gap-2"><i class="fa-solid fa-play"></i> 动态推演与图表</button>
+                    <button onclick="switchTabSD('diagram')" id="sd-nav-diagram" class="py-3.5 px-8 flex items-center gap-2 text-slate-600 hover:bg-slate-50 transition-all"><i class="fa-solid fa-project-diagram"></i> 系统流图与方程</button>
+                    <button onclick="switchTabSD('steps')" id="sd-nav-steps" class="py-3.5 px-8 flex items-center gap-2 text-slate-600 hover:bg-slate-50 transition-all"><i class="fa-solid fa-list-ol"></i> 步骤详解</button>
+                    <button onclick="switchTabSD('code')" id="sd-nav-code" class="py-3.5 px-8 flex items-center gap-2 text-slate-600 hover:bg-slate-50 transition-all"><i class="fa-solid fa-code"></i> Python 源码</button>
+                    <button onclick="switchTabSD('analysis')" id="sd-nav-analysis" class="py-3.5 px-8 flex items-center gap-2 text-slate-600 hover:bg-slate-50 transition-all"><i class="fa-solid fa-chart-bar"></i> 多模型对比分析</button>
+                </nav>
+
+                <section id="sd-tab-sandbox" class="animate-fadeIn space-y-6">
+                    <div id="sd-insight-banner" class="bg-blue-50 border border-blue-200 text-blue-800 p-5 rounded-lg text-base shadow-sm font-bold"></div>
+                    
+                    <div class="flex flex-col lg:flex-row gap-6">
+                        <div class="w-full lg:w-1/3 compact-card flex flex-col">
+                            <div class="card-header"><span class="text-blue-600"><i class="fa-solid fa-sliders mr-2"></i> 模型参数与仿真控制</span></div>
+                            <div id="sd-param-form" class="space-y-5 flex-grow py-2 px-1"></div>
+                            
+                            <div class="mt-6 border-t border-slate-200 pt-5">
+                                <div class="flex justify-between items-center mb-4">
+                                    <span class="font-bold text-base text-slate-700">离散仿真播放轴</span>
+                                    <span class="text-sm font-bold bg-blue-100 text-blue-700 px-3 py-1 rounded-full shadow-inner" id="sd-playback-step">步数: 0</span>
+                                </div>
+                                <input type="range" id="sd-playback-range" class="scale-slider mb-5" min="0" value="0">
+                                <div class="flex gap-3 justify-center">
+                                    <button id="sd-play-btn" class="px-5 py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-sm font-bold hover:bg-emerald-100 transition-all shadow-sm"><i class="fa-solid fa-play mr-1"></i> 播放</button>
+                                    <button id="sd-pause-btn" class="px-5 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-sm font-bold hover:bg-amber-100 transition-all shadow-sm"><i class="fa-solid fa-pause mr-1"></i> 暂停</button>
+                                    <button id="sd-reset-btn" class="px-5 py-2 bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-sm font-bold hover:bg-slate-100 transition-all shadow-sm"><i class="fa-solid fa-rotate-left mr-1"></i> 归零</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="w-full lg:w-2/3 compact-card flex flex-col">
+                            <div class="card-header"><span class="text-slate-800 text-lg"><i class="fa-solid fa-chart-line text-emerald-500 mr-2"></i> 仿真状态实时监控</span></div>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6" id="sd-kpi-grid"></div>
+                            <div class="flex-grow flex flex-col gap-6">
+                                <div class="h-[250px] w-full relative" id="sd-primary-chart-container"><canvas id="sd-primary-chart"></canvas></div>
+                                <div class="h-[250px] w-full relative" id="sd-secondary-chart-container"><canvas id="sd-secondary-chart"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="compact-card overflow-x-auto w-full mt-4">
+                        <div class="card-header"><span class="text-slate-800"><i class="fa-solid fa-table text-blue-500 mr-2"></i> 离散时序演化数据表</span> <span class="text-xs font-normal text-slate-500 ml-4 border px-2 py-1 rounded bg-slate-50 shadow-sm"><i class="fa-solid fa-bolt text-amber-400 mr-1"></i>高亮行跟随播放轴变化</span></div>
+                        <div class="max-h-[300px] overflow-y-auto mt-2 hide-scroll">
+                            <table class="w-full text-center academic-table" id="sd-result-table"></table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="sd-tab-diagram" class="hidden animate-fadeIn space-y-6">
+                    <div class="flex flex-col xl:flex-row gap-6">
+                        <div class="w-full xl:w-2/3 compact-card flex flex-col">
+                            <div class="card-header"><span class="text-slate-800 text-lg"><i class="fa-solid fa-project-diagram text-blue-500 mr-2"></i> 系统动力学存量流量图 (Stock-Flow Diagram)</span></div>
+                            <div class="text-xs text-slate-500 mb-4">提示：鼠标滚轮可缩放，左键按住背景可自由拖拽画布，双击空白处自动居中复位。</div>
+                            <div class="diagram-stage" id="sd-diagram-stage">
+                                 <div id="sd-diagram-container" class="diagram-container"></div>
+                            </div>
+                        </div>
+                        <div class="w-full xl:w-1/3 compact-card flex flex-col">
+                            <div class="card-header"><span class="text-slate-800 text-lg"><i class="fa-solid fa-square-root-variable text-blue-500 mr-2"></i> DYNAMO 方程系统</span></div>
+                            <div class="flex-grow overflow-y-auto max-h-[500px] pr-2 hide-scroll">
+                                 <div id="sd-equation-list" class="space-y-4"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="sd-tab-steps" class="hidden compact-card py-8 px-10">
+                    <div class="flex gap-3 mb-8 border-b pb-4 overflow-x-auto">
+                        <button onclick="showStepSD(0)" class="sd-step-btn step-btn-active px-5 py-2.5 rounded-lg text-sm font-bold border transition-all">1. 模型识别</button>
+                        <button onclick="showStepSD(1)" class="sd-step-btn px-5 py-2.5 rounded-lg text-sm font-bold border transition-all text-slate-600 bg-slate-50 hover:bg-slate-100">2. 方程配置</button>
+                        <button onclick="showStepSD(2)" class="sd-step-btn px-5 py-2.5 rounded-lg text-sm font-bold border transition-all text-slate-600 bg-slate-50 hover:bg-slate-100">3. 速率计算</button>
+                        <button onclick="showStepSD(3)" class="sd-step-btn px-5 py-2.5 rounded-lg text-sm font-bold border transition-all text-slate-600 bg-slate-50 hover:bg-slate-100">4. 水准更新</button>
+                        <button onclick="showStepSD(4)" class="sd-step-btn px-5 py-2.5 rounded-lg text-sm font-bold border transition-all text-slate-600 bg-slate-50 hover:bg-slate-100">5. 响应判读</button>
+                    </div>
+                    <div id="sd-step-content" class="min-h-[400px]"></div>
+                </section>
+
+                <section id="sd-tab-code" class="hidden bg-[#1e1e1e] p-8 rounded-xl shadow-xl text-white border border-slate-800">
+                    <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold flex items-center gap-3"><i class="fa-brands fa-python text-yellow-400"></i> <span id="sd-code-title">Python 仿真实现</span></h3></div>
+                    <pre class="rounded-lg overflow-hidden text-[14px] m-0 p-6 bg-black/40 shadow-inner"><code class="language-python" id="sd-code-block"></code></pre>
+                </section>
+
+                <section id="sd-tab-analysis" class="hidden space-y-6">
+                    <div class="compact-card flex flex-col h-[600px] w-full">
+                        <div class="card-header"><span class="text-slate-800 text-xl"><i class="fa-solid fa-chart-column text-blue-500 mr-2"></i> 经典结构动态特征对比</span></div>
+                        <div class="text-base text-slate-500 mb-6">以“主变量末期值 / 初始值”为统一衡量指标，直观对比正反馈扩张、负反馈收敛与二阶系统的不同倍数效应。（参数全局联动于前序沙盒）</div>
+                        <div class="flex-grow w-full relative" id="sd-compare-chart-container"><canvas id="sd-compare-chart"></canvas></div>
+                    </div>
+                </section>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="bg-white border-t py-6 mt-8 shadow-inner">
+        <div class="max-w-[1500px] mx-auto px-6 text-center text-slate-500 font-bold text-sm tracking-wide">
+            大连交通大学交通工程学院 王晚香 &copy; 2024 · 交通运输系统工程（第三版）辅助教学系统
+        </div>
+    </footer>
+
+    <script>
+        // ================= 全局安全的 MathJax 渲染器 =================
+        const MathRenderer = {
+            queue: Promise.resolve(),
+            render: function(elementId, texContent) {
+                const container = document.getElementById(elementId);
+                if (!container) return;
+                const buffer = document.createElement('div');
+                buffer.className = "w-full h-full flex items-center justify-center font-serif";
+                buffer.innerHTML = texContent;
+                this.queue = this.queue.then(() => {
+                    return MathJax.typesetPromise([buffer]).then(() => {
+                        container.innerHTML = '';
+                        while (buffer.firstChild) container.appendChild(buffer.firstChild);
+                    }).catch(err => console.error('MathJax err:', err));
+                });
+            },
+            renderStep: function(elementId, htmlContent) {
+                const container = document.getElementById(elementId);
+                if (!container) return;
+                const buffer = document.createElement('div');
+                buffer.innerHTML = htmlContent;
+                this.queue = this.queue.then(() => {
+                    return MathJax.typesetPromise([buffer]).then(() => {
+                        container.innerHTML = '';
+                        while (buffer.firstChild) container.appendChild(buffer.firstChild);
+                    });
+                });
+            }
+        };
+
+        // ================= 顶层路由控制 =================
+        let currentApp = 'gm';
+        function handleAppSelect(val) {
+            if (['gm', 'ahp', 'gahp'].includes(val)) {
+                switchApp(val);
+            } else if (val.startsWith('sd_')) {
+                let idx = val === 'sd_pos' ? 0 : (val === 'sd_neg' ? 1 : 2);
+                if (sdState.modelIndex !== idx || currentApp !== 'sd') {
+                    sdState.modelIndex = idx;
+                    sdStopPlayback();
+                    sdState.playbackIndex = 0; // 修复：切换例题时重置播放轴
+                    initSDParamsForCurrentModel();
+                    updateSDAll(); 
+                }
+                switchApp('sd');
+            }
+        }
+
+        function switchApp(appId) {
+            currentApp = appId;
+            document.querySelectorAll('.app-container').forEach(el => el.classList.add('hidden'));
+            document.getElementById('app-' + appId).classList.remove('hidden');
+            
+            // 同步顶部 select 状态
+            let select = document.getElementById('main-app-selector');
+            if(appId === 'gm' || appId === 'ahp' || appId === 'gahp') select.value = appId;
+            else if(appId === 'sd') select.value = sdState.modelIndex === 0 ? 'sd_pos' : (sdState.modelIndex === 1 ? 'sd_neg' : 'sd_sec');
+
+            // 强制刷新当前应用的可见图表
+            if(appId === 'gm') { updateSandboxGM(); if(!document.getElementById('gm-tab-analysis').classList.contains('hidden')) renderAnalysisGM(); }
+            if(appId === 'ahp') { updateSandboxAHP(); if(!document.getElementById('ahp-tab-analysis').classList.contains('hidden')) renderAnalysisAHP(); }
+            if(appId === 'gahp') { updateGAHPExpert1(); } 
+            if(appId === 'sd') { updateSDAll(); }
+        }
+
+        // =========================================================
+        // 核心一：GM(1,1) JS 引擎
+        // =========================================================
+        const RAW_DATA_GM = [6986, 8013, 9353, 10821, 12304, 13755];
+        const BASE_YEAR_GM = 2019;
+        let gmState = { a: -0.13253, u: 6712.085, k: 1 };
+        let gmCurrentAnalysisView = 'compare';
+        let gmSandboxChart, gmAnalysisChart;
+
+        function calculateGM() {
+            const { a, u, k } = gmState;
+            let a_safe = (Math.abs(a) < 0.0001) ? (a < 0 ? -0.0001 : 0.0001) : a; 
+            const x0_1 = RAW_DATA_GM[0];
+            let x0_hat = [x0_1], x1_hat = [x0_1];
+            for (let i = 1; i < RAW_DATA_GM.length + k; i++) {
+                let val1 = (x0_1 - u/a_safe) * Math.exp(-a_safe * i) + u/a_safe;
+                x1_hat.push(val1); x0_hat.push(val1 - x1_hat[i-1]);
+            }
+            return { x0_hat, x1_hat, a_safe };
+        }
+
+        function switchTabGM(tabId) {
+            document.querySelectorAll('#app-gm section').forEach(s => s.classList.add('hidden')); document.getElementById(`gm-tab-${tabId}`).classList.remove('hidden');
+            document.querySelectorAll('#app-gm .nav-active').forEach(l => { l.classList.remove('nav-active'); l.classList.add('text-slate-600', 'bg-transparent'); });
+            let act = document.getElementById(`gm-nav-${tabId}`); act.classList.remove('text-slate-600', 'bg-transparent'); act.classList.add('nav-active');
+            if(tabId === 'analysis') renderAnalysisGM(); if(tabId === 'steps') showStepGM(1);
+        }
+
+        function syncParamsGM(source, type) {
+            let val = parseFloat(source.value); if (isNaN(val)) return;
+            if (type === 'a') { gmState.a = val; document.getElementById('gm-slide-a').value = val; document.getElementById('gm-num-a').value = val; }
+            if (type === 'u') { gmState.u = val; document.getElementById('gm-slide-u').value = val; document.getElementById('gm-num-u').value = val; }
+            if (type === 'k') { val = parseInt(val); gmState.k = val; document.getElementById('gm-slide-k').value = val; document.getElementById('gm-num-k').value = val; document.getElementById('gm-label-k').innerText = `${val} 年`; }
+            updateSandboxGM();
+        }
+
+        document.getElementById('gm-slide-a').oninput = (e) => syncParamsGM(e.target, 'a'); document.getElementById('gm-num-a').onchange = (e) => syncParamsGM(e.target, 'a');
+        document.getElementById('gm-slide-u').oninput = (e) => syncParamsGM(e.target, 'u'); document.getElementById('gm-num-u').onchange = (e) => syncParamsGM(e.target, 'u');
+        document.getElementById('gm-slide-k').oninput = (e) => syncParamsGM(e.target, 'k'); document.getElementById('gm-num-k').onchange = (e) => syncParamsGM(e.target, 'k');
+
+        function resetParamsGM() { document.getElementById('gm-num-a').value = -0.13253; syncParamsGM(document.getElementById('gm-num-a'), 'a'); document.getElementById('gm-num-u').value = 6712.085; syncParamsGM(document.getElementById('gm-num-u'), 'u'); document.getElementById('gm-num-k').value = 1; syncParamsGM(document.getElementById('gm-num-k'), 'k'); }
+
+        function updateSandboxGM() {
+            const { a, u, k } = gmState; const res = calculateGM(); const x0_1 = RAW_DATA_GM[0]; const C = x0_1 - u/res.a_safe;
+            MathRenderer.render('gm-math-continuous', `$$\\hat{x}^{(1)}(t) = \\left(${x0_1} - \\frac{${u.toFixed(2)}}{${res.a_safe.toFixed(5)}}\\right)e^{-(${res.a_safe.toFixed(5)})t} + \\frac{${u.toFixed(2)}}{${res.a_safe.toFixed(5)}}$$`);
+            MathRenderer.render('gm-math-discrete', `$$\\hat{x}^{(1)}(i+1) = ${C.toFixed(2)} e^{${(-res.a_safe).toFixed(5)}i} ${u/res.a_safe >= 0 ? '+' : ''} ${(u/res.a_safe).toFixed(2)}$$`);
+            MathRenderer.render('gm-math-restitution', `$$\\hat{x}^{(0)}(i+1) = \\hat{x}^{(1)}(i+1) - \\hat{x}^{(1)}(i)$$`);
+
+            let labels = Array.from({length: RAW_DATA_GM.length + k}, (_, i) => (BASE_YEAR_GM + i).toString());
+            let originalPadded = [...RAW_DATA_GM]; while(originalPadded.length < RAW_DATA_GM.length + k) originalPadded.push(null);
+            
+            if(gmSandboxChart) gmSandboxChart.destroy();
+            document.getElementById('gm-sandboxChart-container').innerHTML = '<canvas id="gm-sandboxChart"></canvas>';
+            gmSandboxChart = new Chart(document.getElementById('gm-sandboxChart').getContext('2d'), { type: 'line', data: { labels: labels, datasets: [ { label: '真实观测', data: originalPadded, borderColor: '#94a3b8', backgroundColor: '#94a3b8', borderWidth: 2, pointStyle: 'rect', tension: 0 }, { label: '拟合曲线', data: res.x0_hat.map(v => Math.round(v)), borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.1)', fill: true, borderDash: [4, 4], tension: 0.3 } ] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 10, padding: 15 } } }, scales: { y: { grid: { color: '#f1f5f9' } }, x: { grid: { color: '#f1f5f9' } } } } });
+
+            if(!document.getElementById('gm-tab-analysis').classList.contains('hidden')) { renderAnalysisGM(); }
+        }
+
+        function switchAnalysisChartGM(type) {
+            gmCurrentAnalysisView = type;
+            ['compare', 'ago', 'error'].forEach(b => { document.getElementById(`gm-ana-btn-${b}`).className = `pb-3 border-b-2 text-base transition-all ${b === type ? 'border-blue-500 font-bold text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`; });
+            renderAnalysisGM();
+        }
+
+        function renderAnalysisGM() {
+            const { a, u, k } = gmState; const engine = calculateGM(); const n = RAW_DATA_GM.length;
+            document.getElementById('gm-ana-tag-a').innerText = a.toFixed(4); document.getElementById('gm-ana-tag-u').innerText = u.toFixed(1); document.getElementById('gm-ana-tag-k').innerText = k;
+            
+            const abs_errors = RAW_DATA_GM.map((v, i) => v - engine.x0_hat[i]); const rel_errors = RAW_DATA_GM.map((v, i) => i === 0 ? 0 : (v - engine.x0_hat[i]) / v);
+            let rowsHTML = "";
+            for (let i = 0; i < n + k; i++) {
+                const year = BASE_YEAR_GM + i; const predVal = Math.round(engine.x0_hat[i]);
+                if (i < n) rowsHTML += `<tr class="hover:bg-slate-50"><td>${year}</td><td><span class="text-[11px] bg-slate-100 text-slate-600 px-3 py-1 rounded border border-slate-200 shadow-sm font-bold">历史观测</span></td><td class="font-bold text-slate-700 text-base">${RAW_DATA_GM[i]}</td><td class="text-base">${predVal}</td><td class="text-base ${Math.round(abs_errors[i]) < 0 ? 'text-red-500 font-bold' : (Math.round(abs_errors[i]) > 0 ? 'text-emerald-600 font-bold' : 'text-slate-400')}">${Math.round(abs_errors[i])}</td><td class="text-base ${Math.abs(rel_errors[i]) > 0.1 ? 'text-red-500 font-bold' : ''}">${(rel_errors[i] * 100).toFixed(2)}%</td></tr>`;
+                else rowsHTML += `<tr class="bg-blue-50/80 font-bold border-l-4 border-blue-500"><td class="text-blue-900 text-base">${year}</td><td><span class="text-[11px] bg-blue-600 text-white px-3 py-1 rounded shadow-md">延展预测</span></td><td class="text-slate-400">-</td><td class="text-blue-700 text-xl">${predVal}</td><td class="text-slate-400">-</td><td class="text-slate-400">-</td></tr>`;
+            }
+            document.getElementById('gm-analysis-tbody').innerHTML = rowsHTML;
+
+            const validRels = rel_errors.slice(1).map(Math.abs); const avg_rel = validRels.reduce((sum, val) => sum + val, 0) / (n - 1); const max_rel = Math.max(...validRels);
+            const mean_raw = RAW_DATA_GM.reduce((a,b)=>a+b,0)/n; const mean_err = abs_errors.reduce((a,b)=>a+b,0)/n;
+            const S1 = Math.sqrt(RAW_DATA_GM.reduce((sum, v) => sum + Math.pow(v - mean_raw, 2), 0) / n); const S2 = Math.sqrt(abs_errors.reduce((sum, v) => sum + Math.pow(v - mean_err, 2), 0) / n);
+            const C = S2 / S1;
+            let grade = (C < 0.35 && max_rel < 0.1) ? "一级 (优秀)" : ((C < 0.5 && max_rel < 0.2) ? "二级 (合格)" : "不合格");
+            let gradeColor = (C < 0.35 && max_rel < 0.1) ? "text-emerald-700" : ((C < 0.5 && max_rel < 0.2) ? "text-amber-600" : "text-red-600");
+            let gradeBg = (C < 0.35 && max_rel < 0.1) ? "bg-emerald-50 border-emerald-300" : ((C < 0.5 && max_rel < 0.2) ? "bg-amber-50 border-amber-300" : "bg-red-50 border-red-300");
+
+            document.getElementById('gm-stat-cards').innerHTML = `
+                <div class="p-5 rounded-xl border bg-slate-50 flex justify-between items-center shadow-sm"><div><div class="text-sm text-slate-500 font-bold mb-2">平均相对误差</div><div class="text-3xl font-black text-slate-800">${(avg_rel * 100).toFixed(2)}%</div></div><i class="fa-solid fa-percent text-slate-300 text-5xl"></i></div>
+                <div class="p-5 rounded-xl border bg-slate-50 flex justify-between items-center shadow-sm"><div><div class="text-sm text-slate-500 font-bold mb-2">后验差比 (C)</div><div class="text-3xl font-black text-slate-800">${C.toFixed(4)}</div></div><i class="fa-solid fa-divide text-slate-300 text-5xl"></i></div>
+                <div class="p-5 rounded-xl border ${gradeBg} flex justify-between items-center shadow-sm"><div><div class="text-sm font-bold mb-2 opacity-80">综合精度等级</div><div class="text-2xl font-black ${gradeColor}">${grade}</div></div><i class="fa-solid fa-ranking-star ${gradeColor} opacity-40 text-5xl"></i></div>`;
+
+            let labelsAll = Array.from({length: n + k}, (_, i) => (BASE_YEAR_GM + i).toString()); let labelsHist = Array.from({length: n}, (_, i) => (BASE_YEAR_GM + i).toString());
+            
+            if(gmAnalysisChart) gmAnalysisChart.destroy();
+            document.getElementById('gm-analysis-chart-container').innerHTML = '<canvas id="gm-analysisChart"></canvas>';
+            
+            let chartData = {};
+            if(gmCurrentAnalysisView === 'compare') {
+                let rawPadded = [...RAW_DATA_GM]; while(rawPadded.length < n + k) rawPadded.push(null);
+                chartData = { labels: labelsAll, datasets: [{ label: '观测历史值', data: rawPadded, borderColor: '#64748b', backgroundColor: '#64748b', type: 'line', pointStyle: 'rect', tension: 0 }, { label: '拟合与预测', data: engine.x0_hat.map(v => Math.round(v)), borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.1)', fill: true, borderDash: [5, 5], tension: 0.2 }] };
+            } else if(gmCurrentAnalysisView === 'ago') {
+                chartData = { labels: labelsAll, datasets: [{ label: '生成序列 X(1)', data: engine.x1_hat, borderColor: '#8b5cf6', backgroundColor: 'rgba(139, 92, 246, 0.2)', fill: true, tension: 0.3 }] };
+            } else {
+                chartData = { labels: labelsHist, datasets: [{ label: '相对残差 (%)', data: rel_errors.map(v => v*100), backgroundColor: rel_errors.map(v => Math.abs(v) > 0.1 ? '#ef4444' : '#10b981'), type: 'bar', borderRadius: 4 }] };
+            }
+            gmAnalysisChart = new Chart(document.getElementById('gm-analysisChart').getContext('2d'), { type: 'line', data: chartData, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 10, padding: 15 } } } } });
+        }
+
+        const GM_STEP_DATA = {
+            1: { title: "1. 累加生成 (AGO)", concept: "将不规则的原始序列进行累加, 旨在通过计算削弱原始数据的随机性，使其呈现指数增长规律。", points: ["由 $X^{(0)}$ 生成 $X^{(1)}$", "保证单调递增"], math: "x^{(1)}(i) = \\sum_{m=1}^{i} x^{(0)}(m)", demo: "$X^{(1)} = \\{6986, 14999, 24352, \\dots, 61232\\}$", tip: "AGO 是灰色系统理论提取序列规律的核心手段。" },
+            2: { title: "2. 构造背景值与矩阵", concept: "构造均值生成序列作为微分方程的背景值，并据此构造数据矩阵 B 和数据向量 Y，为参数估计做准备。", points: ["计算紧邻均值 $z^{(1)}$", "构造 $B$ 矩阵（背景值列与常数项列）", "构造 $Y$ 向量（原始值第2项起）"], math: "B = \\begin{bmatrix} -\\frac{1}{2}(x^{(1)}(1)+x^{(1)}(2)) & 1 \\\\ \\vdots & \\vdots \\\\ -\\frac{1}{2}(x^{(1)}(n-1)+x^{(1)}(n)) & 1 \\end{bmatrix}, \\quad Y = \\begin{bmatrix} x^{(0)}(2) \\\\ \\vdots \\\\ x^{(0)}(n) \\end{bmatrix}", demo: "例题 B 第一行第一列元素: $-\\frac{1}{2}(6986+14999) = -10992.5$", tip: "背景值的构造精度直接影响模型的拟合效果。" },
+            3: { title: "3. 参数估计 (OLS)", concept: "利用普通最小二乘法 (Ordinary Least Squares) 估计白化微分方程中的发展系数 $a$ 和灰色作用量 $u$。", points: ["目标：最小化误差平方和", "计算 $\\hat{a} = (B^T B)^{-1} B^T Y$"], math: "\\hat{a} = \\begin{bmatrix} a \\\\ u \\end{bmatrix} = (B^T B)^{-1} B^T Y", demo: "依据数据矩阵计算得出: $a = -0.13253, u = 6712.085$", tip: "$a$ 的正负决定了系统的发展态势：$a < 0$ 通常代表增长，$a > 0$ 代表衰减。" },
+            4: { title: "4. 模型建立与时间响应", concept: "求解白化微分方程 $\\frac{dx^{(1)}}{dt} + ax^{(1)} = u$，得到时间响应序列，用于向未来时间轴进行数据延展。", points: ["建立一阶常微分方程", "求解时间响应函数"], math: "\\hat{x}^{(1)}(i+1) = \\left(x^{(0)}(1) - \\frac{u}{a}\\right)e^{-ai} + \\frac{u}{a}", demo: "代入参数得: $\\hat{x}^{(1)}(i+1) = 57631.778e^{0.13253i} - 50645.778$", tip: "此步骤计算出的是累加空间的拟合值，不能直接作为预测结果。" },
+            5: { title: "5. 累减还原与检验", concept: "对预测生成的 1-AGO 序列执行逆向操作（累减），得出原始空间的预测值，并进行精度验证。", points: ["累减还原 $\\hat{x}^{(0)}$", "计算相对误差 $\\Delta$", "计算后验差比 C"], math: "\\hat{x}^{(0)}(i+1) = \\hat{x}^{(1)}(i+1) - \\hat{x}^{(1)}(i)", demo: "例题 2025 年流量预测还原值: $15844 (pcu/d)$。所有 $|\\Delta^{(0)}| < 0.1$，精度较高。", tip: "预测前必须通过精度检验，否则模型不可用。" }
+        };
+
+        function showStepGM(idx) {
+            document.querySelectorAll('.gm-step-btn').forEach((b, i) => { b.classList.toggle('step-btn-active', (i+1)===idx); b.classList.toggle('text-slate-600', (i+1)!==idx); b.classList.toggle('bg-slate-50', (i+1)!==idx); }); 
+            let d = GM_STEP_DATA[idx];
+            let htmlContent = `<div class="space-y-6 animate-fadeIn">
+                <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-3"><span class="bg-blue-600 text-white w-8 h-8 rounded text-base flex items-center justify-center shadow-md">${idx}</span> ${d.title}</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-5"><div><span class="text-sm font-bold text-slate-500 uppercase tracking-wider">理论概念</span><p class="text-slate-700 text-base mt-2 leading-relaxed">${d.concept}</p></div><div><span class="text-sm font-bold text-slate-500 uppercase tracking-wider">核心要点</span><ul class="list-disc list-inside text-base text-slate-700 mt-2 space-y-1">${d.points.map(p=>`<li>${p}</li>`).join('')}</ul></div><div class="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-lg text-sm shadow-sm mt-4"><i class="fa-solid fa-lightbulb text-yellow-500 mr-2 text-lg"></i><b>教学提示：</b>${d.tip}</div></div>
+                    <div class="space-y-5"><div><span class="text-sm font-bold text-slate-500 uppercase tracking-wider">核心数学解析</span><div class="math-card text-center text-3xl py-8 shadow-inner">$$${d.math}$$</div></div><div><span class="text-sm font-bold text-slate-500 uppercase tracking-wider">系统沙盒表现 (演算示例)</span><div class="p-4 bg-slate-50 border rounded-lg font-mono text-base text-slate-600 shadow-sm mt-2">${d.demo}</div></div></div>
+                </div></div>`;
+            MathRenderer.renderStep('gm-step-content', htmlContent);
+        }
+
+        // =========================================================
+        // 核心二：AHP JS 引擎
+        // =========================================================
+        const AHP_CRITERIA = ["C1(便利)", "C2(经济)", "C3(安全)", "C4(迅速)"]; const AHP_ALTS = ["B1(铁路)", "B2(公路)", "B3(水路)", "B4(航空)"];
+        const AHP_RI_ARRAY = [0, 0, 0.52, 0.89, 1.12, 1.26, 1.36, 1.41, 1.46, 1.49];
+        const AHP_getInitMat = () => ({
+            CG:  [[1, 3, 7, 9], [1/3, 1, 5, 7], [1/7, 1/5, 1, 3], [1/9, 1/7, 1/3, 1]],
+            BC1: [[1, 3, 2, 9], [1/3, 1, 0.5, 9], [0.5, 2, 1, 9], [1/9, 1/9, 1/9, 1]],
+            BC2: [[1, 2, 1/3, 9], [0.5, 1, 0.5, 9], [3, 2, 1, 9], [1/9, 1/9, 1/9, 1]],
+            BC3: [[1, 2, 3, 0.2], [0.5, 1, 2, 0.2], [1/3, 0.5, 1, 0.2], [5, 5, 5, 1]],
+            BC4: [[1, 0.5, 5, 0.2], [2, 1, 6, 0.2], [0.2, 1/6, 1, 1/9], [5, 5, 9, 1]]
+        });
+        let ahpState = { currentKey: 'CG', matrices: AHP_getInitMat(), results: {} };
+        let ahpSandboxChart, ahpRadarChart;
+
+        function ahp_valToSlider(val) { if (val >= 1) return Math.round(val - 1); return Math.round(-(1/val) + 1); }
+        function ahp_sliderToVal(sliderStr) { let s = parseInt(sliderStr); if (s === 0) return 1; if (s > 0) return s + 1; return 1 / (-s + 1); }
+        function ahp_formatVal(val) { if (val >= 1) return val.toString(); return `1/${Math.round(1/val)}`; }
+        function ahp_toTeX(val) { if (val >= 1) return val.toString(); return `\\frac{1}{${Math.round(1/val)}}`; }
+
+        function calculateAHP(matrix) {
+            let n = matrix.length; let colSums = new Array(n).fill(0);
+            for(let i=0; i<n; i++) for(let j=0; j<n; j++) colSums[j] += matrix[i][j];
+            let normMatrix = matrix.map(row => row.map((val, j) => val / colSums[j]));
+            let weights = normMatrix.map(row => row.reduce((a,b) => a+b, 0) / n);
+            let AW = matrix.map(row => row.reduce((sum, val, j) => sum + val * weights[j], 0));
+            let lambda_max = AW.reduce((sum, val, i) => sum + val / weights[i], 0) / n;
+            
+            let CI = Math.max(0, (lambda_max - n) / (n - 1)); 
+            let RI = AHP_RI_ARRAY[n - 1];
+            let CR = (n <= 2 || RI === 0) ? 0 : (CI / RI);
+            return { weights, lambda_max, CI, CR, valid: CR < 0.1 };
+        }
+        function computeAllAHP() { Object.keys(ahpState.matrices).forEach(key => { ahpState.results[key] = calculateAHP(ahpState.matrices[key]); }); }
+
+        function switchTabAHP(tabId) {
+            document.querySelectorAll('#app-ahp section').forEach(s => s.classList.add('hidden')); document.getElementById(`ahp-tab-${tabId}`).classList.remove('hidden');
+            document.querySelectorAll('#app-ahp .nav-active').forEach(l => { l.classList.remove('nav-active'); l.classList.add('text-slate-600', 'bg-transparent'); });
+            let act = document.getElementById(`ahp-nav-${tabId}`); act.classList.remove('text-slate-600', 'bg-transparent'); act.classList.add('nav-active');
+            if(tabId === 'analysis') renderAnalysisAHP(); if(tabId === 'steps') showStepAHP(1); if(tabId === 'sandbox') updateSandboxAHP();
+        }
+
+        function selectMatrixAHP(key) {
+            ahpState.currentKey = key;
+            document.querySelectorAll('#app-ahp .mat-selector').forEach(btn => btn.className = "mat-selector px-5 py-2.5 rounded-lg border text-sm transition-all text-slate-600 hover:bg-slate-50");
+            document.getElementById(`btn-mat-${key}`).className = "mat-selector matrix-btn-active px-5 py-2.5 rounded-lg border text-sm transition-all shadow-sm";
+            const titles = { CG: "C-G (准则层)", BC1: "B-C1 (便利性)", BC2: "B-C2 (经济性)", BC3: "B-C3 (安全性)", BC4: "B-C4 (迅速性)" };
+            document.getElementById('ahp-panel-title').innerText = titles[key] + " 矩阵标度调节";
+            renderSlidersAHP(); updateSandboxAHP();
+        }
+
+        function renderSlidersAHP() {
+            const container = document.getElementById('ahp-sliders-container');
+            const isCG = ahpState.currentKey === 'CG'; const labels = isCG ? AHP_CRITERIA : AHP_ALTS;
+            const mat = ahpState.matrices[ahpState.currentKey]; const colors = ['text-blue-700', 'text-emerald-700', 'text-amber-600', 'text-purple-600'];
+            let html = '';
+            for(let i=0; i<mat.length-1; i++) { 
+                for(let j=i+1; j<mat.length; j++) { 
+                    let val = mat[i][j]; 
+                    html += `<div class="slider-group"><div class="flex justify-between text-base font-bold mb-2.5"><span class="${colors[i]}">${labels[i]}</span><span id="ahp-val-${i}-${j}" class="text-slate-700 bg-slate-100 px-3 py-0.5 rounded font-mono text-sm border shadow-sm">${ahp_formatVal(val)}</span><span class="${colors[j]}">${labels[j]}</span></div><input type="range" class="scale-slider" min="-8" max="8" step="1" value="${ahp_valToSlider(val)}" oninput="onSliderChangeAHP(${i}, ${j}, this.value)"></div>`; 
+                } 
+            }
+            container.innerHTML = html;
+        }
+
+        function onSliderChangeAHP(i, j, sliderStr) { let val = ahp_sliderToVal(sliderStr); let mat = ahpState.matrices[ahpState.currentKey]; mat[i][j] = val; mat[j][i] = 1 / val; document.getElementById(`ahp-val-${i}-${j}`).innerText = ahp_formatVal(val); computeAllAHP(); updateSandboxAHP(); }
+        function resetCurrentMatrixAHP() { ahpState.matrices[ahpState.currentKey] = AHP_getInitMat()[ahpState.currentKey]; computeAllAHP(); renderSlidersAHP(); updateSandboxAHP(); }
+        function resetAllMatricesAHP() { ahpState.matrices = AHP_getInitMat(); computeAllAHP(); renderSlidersAHP(); updateSandboxAHP(); if(!document.getElementById('ahp-tab-analysis').classList.contains('hidden')) renderAnalysisAHP(); }
+
+        function updateSandboxAHP() {
+            const key = ahpState.currentKey; const mat = ahpState.matrices[key]; const res = ahpState.results[key];
+            
+            MathRenderer.render('ahp-math-matrix', `$$ A = \\begin{bmatrix} ` + mat.map(row => row.map(ahp_toTeX).join(" & ")).join(" \\\\ ") + ` \\end{bmatrix} $$`);
+            MathRenderer.render('ahp-math-weights', `$$ W = \\begin{bmatrix} ` + res.weights.map(w => w.toFixed(4)).join(" \\\\ ") + ` \\end{bmatrix}^T $$`); 
+            MathRenderer.render('ahp-cr-details', `$$\\lambda_{max} = ${res.lambda_max.toFixed(4)},\\ CI = ${res.CI.toFixed(4)},\\ CR = ${res.CR.toFixed(4)}$$`);
+            
+            const alertBox = document.getElementById('ahp-cr-alert'); const crTitle = document.getElementById('ahp-cr-title');
+            if (res.valid) { alertBox.className = "p-4 rounded-xl border-2 flex flex-col items-center justify-center transition-colors bg-emerald-50 border-emerald-300 text-emerald-800 shadow-inner flex-grow w-full"; crTitle.innerHTML = `<i class="fa-solid fa-circle-check"></i> 满意的一致性 (CR < 0.10)`; } 
+            else { alertBox.className = "p-4 rounded-xl border-2 flex flex-col items-center justify-center transition-colors bg-red-50 border-red-300 text-red-800 shadow-inner flex-grow w-full"; crTitle.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> 一致性未通过 (CR ≥ 0.10)`; }
+            
+            if(ahpSandboxChart) ahpSandboxChart.destroy();
+            document.getElementById('ahp-sandboxChart-container').innerHTML = '<canvas id="ahp-sandboxChart"></canvas>';
+            const finalScores = getAhpTotalScores(); const maxIdx = finalScores.indexOf(Math.max(...finalScores));
+            ahpSandboxChart = new Chart(document.getElementById('ahp-sandboxChart').getContext('2d'), { type: 'bar', data: { labels: AHP_ALTS, datasets: [{ label: '全局动态总得分', data: finalScores, backgroundColor: finalScores.map((s, i) => i === maxIdx ? '#2563eb' : '#94a3b8'), borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, suggestedMax: 0.5, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } } } });
+            
+            if(!document.getElementById('ahp-tab-analysis').classList.contains('hidden')) { renderAnalysisAHP(); }
+        }
+        
+        function getAhpTotalScores() { const w_c = ahpState.results.CG.weights; const b_matrices = [ahpState.results.BC1.weights, ahpState.results.BC2.weights, ahpState.results.BC3.weights, ahpState.results.BC4.weights]; return AHP_ALTS.map((_, i) => { let score = 0; for(let j=0; j<4; j++) score += b_matrices[j][i] * w_c[j]; return score; }); }
+        
+        function renderAnalysisAHP() {
+            const w_c = ahpState.results.CG.weights; const b_matrices = [ahpState.results.BC1.weights, ahpState.results.BC2.weights, ahpState.results.BC3.weights, ahpState.results.BC4.weights]; let tbody = "";
+            for(let i=0; i<4; i++) { let total = 0; let cells = ""; for(let j=0; j<4; j++) { let contrib = b_matrices[j][i] * w_c[j]; total += contrib; cells += `<td>${contrib.toFixed(4)} <br><span class="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded shadow-inner">${(b_matrices[j][i]*100).toFixed(1)}%</span></td>`; } tbody += `<tr class="hover:bg-slate-50"><td class="font-bold text-slate-700">${AHP_ALTS[i]}</td>${cells}<td class="font-bold text-blue-800 bg-blue-50/80 text-lg border-b border-blue-200">${total.toFixed(4)}</td></tr>`; }
+            document.getElementById('ahp-analysis-tbody').innerHTML = tbody;
+            
+            if(ahpRadarChart) ahpRadarChart.destroy();
+            document.getElementById('ahp-radarChart-container').innerHTML = '<canvas id="ahp-radarChart"></canvas>';
+            ahpRadarChart = new Chart(document.getElementById('ahp-radarChart').getContext('2d'), { type: 'radar', data: { labels: AHP_CRITERIA, datasets: AHP_ALTS.map((alt, i) => { const colors = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6']; return { label: alt, data: [b_matrices[0][i], b_matrices[1][i], b_matrices[2][i], b_matrices[3][i]], borderColor: colors[i], backgroundColor: 'transparent', borderWidth: 3, pointRadius: 4 }; }) }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 12, padding: 15, font: { size: 14 } } } }, scales: { r: { beginAtZero: true, suggestedMax: 0.6 } } } });
+        }
+
+        const AHP_STEP_DATA = {
+            1: { title: "1. 建立层次结构模型", concept: "将复杂决策问题分解为目标层、准则层和方案层，形成自上而下的树状递阶结构。", points: ["目标层 G: 运输方式选择", "准则层 C: 便利性、经济性、安全性、迅速性", "方案层 B: 铁路、公路、水路、航空"], math: "\\text{Hierarchical Structure}", demo: "最高层为运输总目标，中间由四个评价指标衡量，最底层为四种实体方案。", tip: "合理的分层是 AHP 分析成功的基础，决定了后续矩阵的维度。" },
+            2: { title: "2. 构造全量判断矩阵", concept: "通过专家经验，对同一层次的要素两两比较，使用 1-9 标度法量化其相对重要性。", points: ["正互反性: $a_{ij} > 0, a_{ji} = 1/a_{ij}$", "对角线自反: $a_{ii} = 1$"], math: "A = \\begin{bmatrix} a_{11} & \\cdots & a_{1n} \\\\ \\vdots & \\ddots & \\vdots \\\\ a_{n1} & \\cdots & a_{nn} \\end{bmatrix}", demo: "在 C-G 矩阵中，若便利性比经济性“稍微重要(3)”，则 $a_{12}=3, a_{21}=1/3$。", tip: "判断矩阵反映了主观偏好，本系统提供 5 个矩阵的完整沙盒调节。" },
+            3: { title: "3. 层次单排序 (求权重)", concept: "计算判断矩阵的最大特征根及对应的特征向量，归一化后作为本层元素对上层元素的权重占比。", points: ["和法或根法近似求解", "求解特征方程 $AW = \\lambda_{max}W$"], math: "W_i = \\frac{\\sum_{j=1}^n \\overline{a}_{ij}}{\\sum_{i=1}^n \\sum_{j=1}^n \\overline{a}_{ij}}", demo: "系统利用 JS 实时解析矩阵特征根，动态输出权重向量 W。", tip: "特征向量在几何上代表了多维偏好空间中最核心的指向（权重分配）。" },
+            4: { title: "4. 一致性检验 (CR)", concept: "防止判断矩阵出现严重的逻辑矛盾（如 A>B, B>C，却得出 C>A），需计算一致性比例 CR。", points: ["计算 $CI = (\\lambda_{max}-n)/(n-1)$", "计算 $CR = CI/RI < 0.10$"], math: "CR = \\frac{CI}{RI} < 0.10", demo: "例 8-9 的 C-G 矩阵 CR = 0.0609 < 0.1，满足条件（若沙盒中提示未通过，需调整滑块）。", tip: "只有当各个矩阵的 CR < 0.1 时，最终的决策结果才具备数学意义的可靠性。" },
+            5: { title: "5. 层次总排序 (决策)", concept: "从上到下逐层合成权重，计算最低层（方案）相对于最高层（总目标）的最终优先顺序。", points: ["合成权值 = $\\sum$ (准则权重 $\\times$ 方案单排序权重)"], math: "W_{B_i} = \\sum_{j=1}^m W_{C_j} \\cdot W_{B_i|C_j}", demo: "在默认参数下，铁路运输得分最高，为最优综合运输选择。", tip: "总排序不仅看单项冠军，更看重在核心准则上的表现（木桶效应与长板效应的综合）。" }
+        };
+        function showStepAHP(idx) {
+            document.querySelectorAll('.ahp-step-btn').forEach((b, i) => { b.classList.toggle('step-btn-active', (i+1)===idx); b.classList.toggle('text-slate-600', (i+1)!==idx); b.classList.toggle('bg-slate-50', (i+1)!==idx); }); let d = AHP_STEP_DATA[idx];
+            let htmlContent = `<div class="space-y-6 animate-fadeIn">
+                <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-3"><span class="bg-blue-600 text-white w-8 h-8 rounded text-base flex items-center justify-center shadow-md">${idx}</span> ${d.title}</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-5"><div><span class="text-sm font-bold text-slate-500 uppercase tracking-wider">理论概念</span><p class="text-slate-700 text-base mt-2 leading-relaxed">${d.concept}</p></div><div><span class="text-sm font-bold text-slate-500 uppercase tracking-wider">核心要点</span><ul class="list-disc list-inside text-base text-slate-700 mt-2 space-y-1">${d.points.map(p=>`<li>${p}</li>`).join('')}</ul></div><div class="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-lg text-sm shadow-sm mt-4"><i class="fa-solid fa-lightbulb text-yellow-500 mr-2 text-lg"></i><b>教学提示：</b>${d.tip}</div></div>
+                    <div class="space-y-5"><div><span class="text-sm font-bold text-slate-500 uppercase tracking-wider">核心数学解析</span><div class="math-card text-center text-3xl py-8 shadow-inner">$$${d.math}$$</div></div><div><span class="text-sm font-bold text-slate-500 uppercase tracking-wider">系统沙盒表现 (演算示例)</span><div class="p-4 bg-slate-50 border rounded-lg font-mono text-base text-slate-600 shadow-sm mt-2">${d.demo}</div></div></div>
+                </div></div>`;
+            MathRenderer.renderStep('ahp-step-content', htmlContent);
+        }
+
+        // =========================================================
+        // 核心三：群组 AHP JS 引擎
+        // =========================================================
+        const GAHP_INDICATORS = [
+            { id: "B11", name: "配送成本", parent: "B1:经济" }, { id: "B12", name: "服务平衡", parent: "B1:经济" },
+            { id: "B21", name: "库存周转", parent: "B2:内部" }, { id: "B22", name: "人员利用", parent: "B2:内部" },
+            { id: "B23", name: "设备利用", parent: "B2:内部" }, { id: "B24", name: "信息化", parent: "B2:内部" },
+            { id: "B31", name: "速度", parent: "B3:质量" }, { id: "B32", name: "可得性", parent: "B3:质量" },
+            { id: "B33", name: "一致性", parent: "B3:质量" }, { id: "B34", name: "应变性", parent: "B3:质量" },
+            { id: "B41", name: "满意度", parent: "B4:反馈" }, { id: "B42", name: "份额递增", parent: "B4:反馈" }
+        ];
+        
+        const GAHP_W_FINAL = [0.0827, 0.0783, 0.1085, 0.0637, 0.0737, 0.1061, 0.0759, 0.0898, 0.0996, 0.0867, 0.0690, 0.0660];
+        const EXP1_W_DEFAULT = [0.0833, 0.0417, 0.1125, 0.0375, 0.1125, 0.1125, 0.0536, 0.1071, 0.1071, 0.1071, 0.0938, 0.0313];
+        const GAHP_DEFAULT_LAMBDAS = [0.15, 0.15, 0.1, 0.1, 0.05, 0.1, 0.1, 0.05, 0.15, 0.05];
+        let gahpLambdas = [...GAHP_DEFAULT_LAMBDAS];
+
+        const w_other = GAHP_INDICATORS.map((_, i) => (GAHP_W_FINAL[i] - 0.15 * EXP1_W_DEFAULT[i]) / 0.85);
+        let gahpExpertVectors = [[]]; 
+        for(let i=1; i<10; i++) gahpExpertVectors.push([...w_other]);
+
+        const getInitExp1Mat = () => ({
+            BA: [[1, 1/3, 1/3, 1], [3, 1, 1, 3], [3, 1, 1, 3], [1, 1/3, 1/3, 1]],
+            B1: [[1, 2], [1/2, 1]],
+            B2: [[1, 3, 1, 1], [1/3, 1, 1/3, 1/3], [1, 3, 1, 1], [1, 3, 1, 1]],
+            B3: [[1, 1/2, 1/2, 1/2], [2, 1, 1, 1], [2, 1, 1, 1], [2, 1, 1, 1]],
+            B4: [[1, 3], [1/3, 1]]
+        });
+
+        let gahpExp1State = { currentKey: 'BA', matrices: getInitExp1Mat(), results: {} };
+        const GAHP_LABELS = {
+            BA: ["B1(经济)", "B2(内部)", "B3(质量)", "B4(反馈)"],
+            B1: ["B11(成本)", "B12(平衡)"],
+            B2: ["B21(周转)", "B22(人员)", "B23(设备)", "B24(信息)"],
+            B3: ["B31(速度)", "B32(可得)", "B33(一致)", "B34(应变)"],
+            B4: ["B41(满意度)", "B42(份额)"]
+        };
+
+        let gahpMainChart;
+
+        function switchTabGAHP(tabId) {
+            document.querySelectorAll('#app-gahp section').forEach(s => s.classList.add('hidden')); document.getElementById(`gahp-tab-${tabId}`).classList.remove('hidden');
+            document.querySelectorAll('#app-gahp .nav-active').forEach(l => { l.classList.remove('nav-active'); l.classList.add('text-slate-600', 'bg-transparent'); });
+            let act = document.getElementById(`gahp-nav-${tabId}`); act.classList.remove('text-slate-600', 'bg-transparent'); act.classList.add('nav-active');
+            if(tabId === 'individual') selectMatrixGAHPExp1(gahpExp1State.currentKey);
+            if(tabId === 'sandbox') renderSlidersGAHP();
+            if(tabId === 'analysis') renderAnalysisGAHP(); 
+            if(tabId === 'steps') showStepGAHP(1);
+        }
+
+        function selectMatrixGAHPExp1(key) {
+            gahpExp1State.currentKey = key;
+            document.querySelectorAll('.gahp-mat-selector').forEach(b => { b.classList.remove('matrix-btn-active'); b.classList.add('text-slate-600', 'bg-slate-50'); });
+            document.getElementById(`btn-gahp-mat-${key}`).classList.remove('text-slate-600', 'bg-slate-50'); document.getElementById(`btn-gahp-mat-${key}`).classList.add('matrix-btn-active');
+            
+            const titles = { BA: "B-A 主因素矩阵", B1: "B1 经济效益子矩阵", B2: "B2 内部运作子矩阵", B3: "B3 作业质量子矩阵", B4: "B4 效果反馈子矩阵" };
+            document.getElementById('gahp-panel-title').innerText = titles[key] + " 标度调节";
+            
+            renderSlidersGAHPExp1();
+            updateGAHPExpert1();
+        }
+
+        function renderSlidersGAHPExp1() {
+            const key = gahpExp1State.currentKey; const labels = GAHP_LABELS[key]; const mat = gahpExp1State.matrices[key];
+            const colors = ['text-blue-700', 'text-emerald-700', 'text-amber-600', 'text-purple-600'];
+            let html = '';
+            for(let i=0; i<mat.length-1; i++) {
+                for(let j=i+1; j<mat.length; j++) {
+                    let val = mat[i][j];
+                    html += `<div class="slider-group"><div class="flex justify-between text-base font-bold mb-2.5"><span class="${colors[i]}">${labels[i]}</span><span id="gahp-exp1-val-${i}-${j}" class="text-slate-700 bg-slate-100 px-3 py-0.5 rounded font-mono text-[11px] border shadow-sm">${ahp_formatVal(val)}</span><span class="${colors[j]}">${labels[j]}</span></div><input type="range" class="scale-slider" min="-8" max="8" step="1" value="${ahp_valToSlider(val)}" oninput="onSliderChangeGAHPExp1(${i}, ${j}, this.value)"></div>`;
+                }
+            }
+            document.getElementById('gahp-sliders-container-exp1').innerHTML = html;
+        }
+
+        function onSliderChangeGAHPExp1(i, j, sliderStr) {
+            let val = ahp_sliderToVal(sliderStr); let mat = gahpExp1State.matrices[gahpExp1State.currentKey];
+            mat[i][j] = val; mat[j][i] = 1 / val;
+            document.getElementById(`gahp-exp1-val-${i}-${j}`).innerText = ahp_formatVal(val);
+            updateGAHPExpert1();
+        }
+
+        function resetGAHPExp1Matrix() { gahpExp1State.matrices = getInitExp1Mat(); renderSlidersGAHPExp1(); updateGAHPExpert1(); }
+
+        function updateGAHPExpert1() {
+            Object.keys(gahpExp1State.matrices).forEach(k => { gahpExp1State.results[k] = calculateAHP(gahpExp1State.matrices[k]); });
+            const key = gahpExp1State.currentKey; const mat = gahpExp1State.matrices[key]; const res = gahpExp1State.results[key];
+            
+            MathRenderer.render('gahp-math-matrix-exp1', `$$A = \\begin{bmatrix} ` + mat.map(row => row.map(ahp_toTeX).join(" & ")).join(" \\\\ ") + ` \\end{bmatrix}$$`);
+            MathRenderer.render('gahp-math-weights-exp1', `$$W = \\begin{bmatrix} ` + res.weights.map(w => w.toFixed(4)).join(" \\\\ ") + ` \\end{bmatrix}^T$$`);
+            MathRenderer.render('gahp-cr-details-exp1', `$$\\lambda_{max} = ${res.lambda_max.toFixed(4)},\\ CI = ${res.CI.toFixed(4)},\\ CR = ${res.CR.toFixed(4)}$$`);
+            
+            const alertBox = document.getElementById('gahp-cr-alert-exp1'); const crTitle = document.getElementById('gahp-cr-title-exp1');
+            if (res.valid) { alertBox.className = "p-4 rounded-xl border-2 flex flex-col items-center justify-center transition-all text-center flex-grow bg-emerald-50 border-emerald-300 text-emerald-800 shadow-inner"; crTitle.innerHTML = `<i class="fa-solid fa-circle-check"></i> 满意的一致性 (CR < 0.10)`; } 
+            else { alertBox.className = "p-4 rounded-xl border-2 flex flex-col items-center justify-center transition-all text-center flex-grow bg-red-50 border-red-300 text-red-800 shadow-inner"; crTitle.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> 一致性未通过 (CR ≥ 0.10)`; }
+
+            const w_BA = gahpExp1State.results.BA.weights;
+            const w1 = [
+                w_BA[0] * gahpExp1State.results.B1.weights[0], w_BA[0] * gahpExp1State.results.B1.weights[1],
+                w_BA[1] * gahpExp1State.results.B2.weights[0], w_BA[1] * gahpExp1State.results.B2.weights[1], w_BA[1] * gahpExp1State.results.B2.weights[2], w_BA[1] * gahpExp1State.results.B2.weights[3],
+                w_BA[2] * gahpExp1State.results.B3.weights[0], w_BA[2] * gahpExp1State.results.B3.weights[1], w_BA[2] * gahpExp1State.results.B3.weights[2], w_BA[2] * gahpExp1State.results.B3.weights[3],
+                w_BA[3] * gahpExp1State.results.B4.weights[0], w_BA[3] * gahpExp1State.results.B4.weights[1]
+            ];
+            gahpExpertVectors[0] = w1; 
+
+            document.getElementById('gahp-th-b1').innerText = `B1(${w_BA[0].toFixed(4)})`; document.getElementById('gahp-th-b2').innerText = `B2(${w_BA[1].toFixed(4)})`;
+            document.getElementById('gahp-th-b3').innerText = `B3(${w_BA[2].toFixed(4)})`; document.getElementById('gahp-th-b4').innerText = `B4(${w_BA[3].toFixed(4)})`;
+            
+            let html = "";
+            GAHP_INDICATORS.forEach((ind, i) => {
+                let cellB1 = i<2 ? (w1[i]/w_BA[0]).toFixed(4) : ""; let cellB2 = i>=2&&i<6 ? (w1[i]/w_BA[1]).toFixed(4) : "";
+                let cellB3 = i>=6&&i<10 ? (w1[i]/w_BA[2]).toFixed(4) : ""; let cellB4 = i>=10 ? (w1[i]/w_BA[3]).toFixed(4) : "";
+                html += `<tr class="hover:bg-slate-50 text-base"><td>${ind.id} ${ind.name}</td><td>${cellB1}</td><td>${cellB2}</td><td>${cellB3}</td><td>${cellB4}</td><td class="font-bold bg-blue-50/80 text-blue-700 border-b border-blue-200 text-lg">${w1[i].toFixed(4)}</td></tr>`;
+            });
+            document.getElementById('gahp-exp1-tbody').innerHTML = html;
+
+            updateCalculationsGAHP();
+        }
+
+        function renderSlidersGAHP() {
+            document.getElementById('gahp-expert-sliders').innerHTML = gahpLambdas.map((val, i) => `
+                <div class="space-y-3"><div class="flex justify-between text-base font-bold mb-1.5"><span class="text-slate-600">专家 ${i+1} ${i===0?'<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded ml-2 shadow-inner text-xs"><i class="fa-solid fa-link"></i>个体矩阵控制</span>':''}</span><span class="text-blue-600 font-mono border bg-slate-100 px-2 py-0.5 rounded shadow-sm" id="gahp-lambda-val-${i}">${val.toFixed(2)}</span></div><input type="range" min="0" max="1" step="0.01" value="${val}" class="expert-slider scale-slider" oninput="updateLambdaGAHP(${i}, this.value)"></div>
+            `).join('');
+        }
+        
+        function updateLambdaGAHP(idx, val) {
+            gahpLambdas[idx] = parseFloat(val);
+            document.getElementById(`gahp-lambda-val-${idx}`).innerText = parseFloat(val).toFixed(2);
+            updateCalculationsGAHP();
+        }
+        function resetExpertWeightsGAHP() { gahpLambdas = [...GAHP_DEFAULT_LAMBDAS]; renderSlidersGAHP(); updateCalculationsGAHP(); }
+
+        function updateCalculationsGAHP() {
+            const sumL = gahpLambdas.reduce((a, b) => a + b, 0); const normalizedL = gahpLambdas.map(l => l / sumL);
+            MathRenderer.render('gahp-math-formula-group', `$$W_{j} = \\lambda_{1}W_{j1} + \\lambda_{2}W_{j2} + \\dots + \\lambda_{10}W_{j10}$$`);
+            const finalW = GAHP_INDICATORS.map((_, indIdx) => normalizedL.reduce((sum, l, expIdx) => sum + l * gahpExpertVectors[expIdx][indIdx], 0));
+            
+            if(gahpMainChart) gahpMainChart.destroy();
+            document.getElementById('gahp-mainChart-container').innerHTML = '<canvas id="gahp-mainChart"></canvas>';
+            gahpMainChart = new Chart(document.getElementById('gahp-mainChart').getContext('2d'), { type: 'bar', data: { labels: GAHP_INDICATORS.map(ind => ind.name), datasets: [{ label: '指标综合权重', data: finalW, backgroundColor: '#3b82f6', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, max: 0.15, grid: { color: '#f1f5f9' } }, y: { grid: { display: false }, ticks: { font: { size: 12, weight: 'bold' } } } } } });
+            
+            window.gahpLastCalc = finalW;
+            if(!document.getElementById('gahp-tab-analysis').classList.contains('hidden')) renderAnalysisGAHP();
+        }
+
+        function renderAnalysisGAHP() {
+            const finalW = window.gahpLastCalc || []; const sorted = [...finalW].sort((a, b) => b - a);
+            document.getElementById('gahp-analysis-tbody').innerHTML = GAHP_INDICATORS.map((ind, i) => {
+                const weight = finalW[i] || 0; const rank = sorted.indexOf(weight) + 1;
+                return `<tr class="hover:bg-slate-50 text-base"><td class="font-bold text-slate-700">${ind.id} ${ind.name}</td><td class="text-slate-500">${ind.parent}</td><td class="text-slate-500 bg-slate-50 border-x">${gahpExpertVectors[0][i].toFixed(4)}</td><td class="bg-blue-50/80 text-blue-800 font-bold border-b border-blue-300 text-lg shadow-inner">${weight.toFixed(4)}</td><td><span class="px-3 py-1.5 rounded text-sm shadow-sm font-bold ${rank <= 3 ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-slate-100 text-slate-500 border'}">No.${rank}</span></td></tr>`;
+            }).join('');
+        }
+
+        const GAHP_STEP_DATA = {
+            1: { title: "1. 建立结构模型", concept: "将配送中心绩效评价这一复杂问题分解为目标层、主因素层和子因素层，形成自上而下的递阶结构。", points: ["目标层 A: 配送绩效评价", "主因素层 B1-B4: 经济、运作、质量、反馈", "子因素层 B11-B42: 12 个细分指标"], math: "\\text{Goal} \\rightarrow \\text{Criteria} \\rightarrow \\text{Indicators}", demo: "配送绩效受经济效益(B1)、内部运作(B2)等四大维度共同驱动，详情见【个体专家矩阵演算】。", tip: "合理的指标体系是评价公正性的前提。" },
+            2: { title: "2. 个体专家决策", concept: "每位专家独立对指标进行两两比较，构造判断矩阵，计算该专家的层次单排序向量。", points: ["专家独立判断", "通过一致性检验 (CR < 0.10)", "得出 $W_{jk}$ (第 k 位专家对指标 j 的评价)"], math: "A_k W_k = \\lambda_{max} W_k", demo: "专家 1 认为“库存周转率”相对于内部运作极其重要，您可在个体沙盒中推演该过程。", tip: "个体决策的一致性决定了最终群组决策的可靠性。" },
+            3: { title: "3. 确定专家权重", concept: "根据专家的资历、专业深度、能力水平，赋予不同的权重系数 $\\lambda_k$。", points: ["主观赋权或客观评价", "权数和需为 1 (自动归一化)"], math: "\\sum_{k=1}^s \\lambda_k = 1", demo: "教材设定物流专家 $\\lambda_1=0.15$，信息专家 $\\lambda_5=0.05$。系统提供滑块自由调节。", tip: "专家权重的差异体现了决策对不同领域专业意见的偏倚程度。" },
+            4: { title: "4. 群体权重合成", concept: "将所有专家的排序向量与其权重进行合成，得出最终的群组综合排序向量。", points: ["综合排序向量法", "加权算术平均法 (AW)"], math: "W_j = \\sum_{k=1}^s \\lambda_k W_{jk}", demo: "综合 10 位专家意见后，系统全自动动态联动合成出最终的 14 个指标排序。", tip: "此方法能有效利用群体智慧，平衡个人偏见带来的误差。" }
+        };
+
+        function showStepGAHP(idx) { 
+            document.querySelectorAll('.gahp-step-btn').forEach((b, i) => { b.classList.toggle('step-btn-active', (i+1)===idx); b.classList.toggle('text-slate-600', (i+1)!==idx); b.classList.toggle('bg-slate-50', (i+1)!==idx); }); let d = GAHP_STEP_DATA[idx]; 
+            let htmlContent = `<div class="space-y-6 animate-fadeIn">
+                <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-3"><span class="bg-blue-600 text-white w-8 h-8 rounded text-base flex items-center justify-center shadow-md">${idx}</span> ${d.title}</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-5"><div><span class="text-sm font-bold text-slate-500 uppercase tracking-wider">理论概念</span><p class="text-slate-700 text-base mt-2 leading-relaxed">${d.concept}</p></div><div><span class="text-sm font-bold text-slate-500 uppercase tracking-wider">核心要点</span><ul class="list-disc list-inside text-base text-slate-700 mt-2 space-y-1">${d.points.map(p=>`<li>${p}</li>`).join('')}</ul></div><div class="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-lg text-sm shadow-sm mt-4"><i class="fa-solid fa-lightbulb text-yellow-500 mr-2 text-lg"></i><b>教学提示：</b>${d.tip}</div></div>
+                    <div class="space-y-5"><div><span class="text-sm font-bold text-slate-500 uppercase tracking-wider">核心数学解析</span><div class="math-card text-center text-3xl py-8 shadow-inner">$$${d.math}$$</div></div><div><span class="text-sm font-bold text-slate-500 uppercase tracking-wider">系统沙盒表现 (演算示例)</span><div class="p-4 bg-slate-50 border rounded-lg font-mono text-base text-slate-600 shadow-sm mt-2">${d.demo}</div></div></div>
+                </div></div>`; 
+            MathRenderer.renderStep('gahp-step-content', htmlContent); 
+        }
+
+        // =========================================================
+        // 核心四：系统动力学 SD (模型自由切换 & 动态重构图表)
+        // =========================================================
+        const SD_CONFIG = {
+            defaultDt: 1, defaultSteps: 20,
+            models: [
+                {
+                    id: 'sd_pos', name: '一阶正反馈', feedbackType: '正反馈', shortTag: '增长系统',
+                    description: '客运量 L1 与年增加量 R1 构成正反馈。水准越大速率越大，呈指数增长。',
+                    sourceHint: '教材例题 5-5：铁路客运量系统',
+                    primaryVars: [{key: 'L1', label: '客运量 (L1)', color: '#3b82f6'}], 
+                    secondaryVars: [{key: 'R1', label: '年增加量 (R1)', color: '#10b981'}], 
+                    timeLabel: '时间（年）',
+                    params: [
+                        { key: 'L1', label: '初始客运量 L1', value: 38.54, min: 1, max: 100, step: 0.01 },
+                        { key: 'C1', label: '年增长率 C1', value: 0.05, min: 0.01, max: 0.2, step: 0.005 },
+                        { key: 'DT', label: '时间步长 DT', value: 1, min: 0.1, max: 2, step: 0.1 },
+                        { key: 'steps', label: '仿真步数', value: 20, min: 5, max: 100, step: 1 }
+                    ],
+                    equations: [
+                        { type: '水准方程', text: '\\mathrm{L}\\;L1\\cdot K = L1\\cdot J + DT * R1\\cdot JK' },
+                        { type: '赋初值', text: '\\mathrm{N}\\;L1 = 38.54' },
+                        { type: '速率方程', text: '\\mathrm{R}\\;R1\\cdot KL = L1\\cdot K * C1' },
+                        { type: '常量方程', text: '\\mathrm{C}\\;C1 = 0.05' }
+                    ],
+                    stepsGuide: [
+                        { title: '1. 模型识别', concept: '系统只包含一个水准变量 L1 和一个速率变量 R1，常量 C1 决定增长强度，构成一阶正反馈回路。', points: ['水准变量：L1（客运量）', '速率变量：R1（年增加量）', '常量：C1（年增长率）'], math: '\\text{Positive Feedback}', demo: '初始客运量逐渐累积并加速增长。', tip: '正反馈系统的核心特征是“越大越快”。' },
+                        { title: '2. 方程配置', concept: '按照教材 DYNAMO 写法，依次列出水准方程、赋初值方程、速率方程和常量方程。', points: ['L L1·K = L1·J + DT * R1·JK', 'R R1·KL = L1·K * C1'], math: 'L1(k) = L1(j) + \\Delta L1', demo: '配置初始值为 38.54 亿人次。', tip: '确保方程严格遵循 DYNAMO 时间下标规范。' },
+                        { title: '3. 速率计算', concept: '先利用当前时刻的水准变量 L1·K 计算速率变量 R1·KL。水准变量越大，速率变量越大。', points: ['当前时刻计算速率'], math: 'R1 = L1 \\times C1', demo: '第一步速率: R1 = 38.54 * 0.05 = 1.927', tip: '速率反映了系统在当前状态下的变化势能。' },
+                        { title: '4. 水准更新', concept: '再根据水准方程，把 DT * R1·JK 累加到上一时刻水准变量 L1·J 上，得到本时刻 L1·K。', points: ['离散积分过程'], math: 'L1(t) = L1(t-dt) + R1 \\times dt', demo: '第二步客运量: 38.54 + 1.927 = 40.467', tip: '水准变量是历史速率的累积。' },
+                        { title: '5. 响应判读', concept: '由于速率变量 R1 与水准变量 L1 正相关，系统不断自我强化，主响应曲线表现为指数上升。', points: ['指数增长行为'], math: 'y = a \\cdot e^{bt}', demo: '曲线呈现 J 型上扬。', tip: '正反馈回路常用来描述事物爆炸式的发展初期。' }
+                    ],
+                    codeBlock: `def simulate_positive_feedback(L1=38.54, C1=0.05, DT=1.0, steps=20):\n    time = [0]\n    level = [L1]\n    rate = [L1 * C1]\n    for k in range(steps):\n        current_L = level[-1]\n        current_R = current_L * C1\n        next_L = current_L + DT * current_R\n        rate[-1] = current_R\n        level.append(next_L)\n        time.append(k + 1)\n        if k < steps - 1:\n            rate.append(next_L * C1)\n    return time, level, rate`,
+                    diagram: {
+                        nodes: [ { id: 'src', type: 'cloud', x: 70, y: 220, label: '源', hint: '流入端' }, { id: 'valve', type: 'valve', x: 200, y: 220, label: 'R1', hint: '客运量增加量' }, { id: 'stock', type: 'stock', x: 360, y: 220, label: 'L1\\n客运量', hint: '核心水准变量' }, { id: 'sink', type: 'cloud', x: 585, y: 220, label: '汇', hint: '流出端' }, { id: 'c1', type: 'aux', x: 185, y: 90, label: 'C1\\n增长率', hint: '增长率常量' } ],
+                        links: [ { from: 'src', to: 'valve', type: 'flow' }, { from: 'valve', to: 'stock', type: 'flow' }, { from: 'stock', to: 'sink', type: 'flowInvisible' }, { from: 'stock', to: 'valve', type: 'info', bend: -90 }, { from: 'c1', to: 'valve', type: 'info' } ]
+                    }
+                },
+                {
+                    id: 'sd_neg', name: '一阶负反馈', feedbackType: '负反馈', shortTag: '收敛系统',
+                    description: '库存系统中，水准变量 D 受速率变量 R1 调节，在期望库存 Y 附近逐步收敛。',
+                    sourceHint: '教材例题 5-6：库存控制系统',
+                    primaryVars: [{key: 'D', label: '库存量 (D)', color: '#3b82f6'}, {key: 'Y', label: '期望库存 (Y)', color: '#ef4444', dash: [5,5]}], 
+                    secondaryVars: [{key: 'R1', label: '订货速率 (R1)', color: '#10b981'}, {key: 'X', label: '库存差额 (X)', color: '#f59e0b'}], 
+                    timeLabel: '时间（周）',
+                    params: [
+                        { key: 'D', label: '初始库存量 D', value: 800, min: 0, max: 5000, step: 10 },
+                        { key: 'Y', label: '期望库存 Y', value: 5000, min: 1000, max: 10000, step: 50 },
+                        { key: 'W', label: '调整时间 W', value: 4, min: 1, max: 20, step: 0.5 },
+                        { key: 'DT', label: '时间步长 DT', value: 1, min: 0.1, max: 2, step: 0.1 },
+                        { key: 'steps', label: '仿真步数', value: 20, min: 5, max: 80, step: 1 }
+                    ],
+                    equations: [
+                        { type: '水准方程', text: '\\mathrm{L}\\;D\\cdot K = D\\cdot J + DT * R1\\cdot JK' },
+                        { type: '赋初值', text: '\\mathrm{N}\\;D = 800' },
+                        { type: '速率方程', text: '\\mathrm{R}\\;R1\\cdot KL = X\\cdot K / W' },
+                        { type: '辅助方程', text: '\\mathrm{A}\\;X\\cdot K = Y - D\\cdot K' },
+                        { type: '常量方程', text: '\\mathrm{C}\\;W = 4' },
+                        { type: '常量方程', text: '\\mathrm{C}\\;Y = 5000' }
+                    ],
+                    stepsGuide: [
+                        { title: '1. 模型识别', concept: '单水准变量的一阶负反馈系统。水准变量 D 与速率 R1 构成主回路，辅助变量 X 表示差额。', points: ['水准变量：D（库存）', '速率变量：R1（订货）', '辅助变量：X（差额）', '常量：Y、W'], math: '\\text{Negative Feedback}', demo: '库存趋近目标值 5000。', tip: '负反馈具有寻的(Goal-seeking)特性。' },
+                        { title: '2. 方程配置', concept: '依次写出水准、赋初值、速率、辅助和常量方程。', points: ['L D·K = D·J + DT * R1·JK', 'A X·K = Y - D·K', 'R R1·KL = X·K / W'], math: 'X = Y - D', demo: '配置辅助方程计算差额。', tip: '辅助变量常用于化简复杂的速率方程。' },
+                        { title: '3. 速率计算', concept: '计算 X·K = Y - D·K，再求 R1·KL = X·K / W。偏差越大，调节越强。', points: ['由偏差驱动速率'], math: 'R1 = \\frac{Y - D}{W}', demo: '初态 R1 = (5000-800)/4 = 1050', tip: '调节时间 W 越小，反应越剧烈。' },
+                        { title: '4. 水准更新', concept: '累加 DT * R1·JK 到上一时刻 D·J 上。', points: ['离散积分'], math: 'D(t) = D(t-dt) + R1 \\times dt', demo: '第二步 D = 800 + 1050 = 1850', tip: '随偏差减小，步进增量变小。' },
+                        { title: '5. 响应判读', concept: '系统最终表现为稳定收敛逼近期望库存 Y。', points: ['渐进收敛'], math: '\\lim_{t \\to \\infty} D(t) = Y', demo: '曲线呈现渐近线平滑贴合。', tip: '这是最经典的寻的系统动态。' }
+                    ],
+                    codeBlock: `def simulate_negative_feedback(D=800, Y=5000, W=4, DT=1.0, steps=20):\n    time = [0]\n    level = [D]\n    gap = [Y - D]\n    rate = [gap[0] / W]\n    for k in range(steps):\n        current_D = level[-1]\n        current_X = Y - current_D\n        current_R = current_X / W\n        next_D = current_D + DT * current_R\n        gap[-1] = current_X\n        rate[-1] = current_R\n        level.append(next_D)\n        time.append(k + 1)\n        if k < steps - 1:\n            gap.append(Y - next_D)\n            rate.append((Y - next_D) / W)\n    return time, level, rate, gap`,
+                    diagram: {
+                        nodes: [ { id: 'src', type: 'cloud', x: 70, y: 220, label: '源' }, { id: 'valve', type: 'valve', x: 205, y: 220, label: 'R1' }, { id: 'stock', type: 'stock', x: 365, y: 220, label: 'D\\n库存量' }, { id: 'sink', type: 'cloud', x: 590, y: 220, label: '汇' }, { id: 'x', type: 'aux', x: 330, y: 365, label: 'X\\n库存差额' }, { id: 'y', type: 'aux', x: 515, y: 365, label: 'Y\\n期望库存' }, { id: 'w', type: 'aux', x: 155, y: 365, label: 'W\\n调整时间' } ],
+                        links: [ { from: 'src', to: 'valve', type: 'flow' }, { from: 'valve', to: 'stock', type: 'flow' }, { from: 'stock', to: 'sink', type: 'flowInvisible' }, { from: 'stock', to: 'x', type: 'info' }, { from: 'y', to: 'x', type: 'info' }, { from: 'x', to: 'valve', type: 'info' }, { from: 'w', to: 'valve', type: 'info' } ]
+                    }
+                },
+                {
+                    id: 'sd_sec', name: '二阶负反馈', feedbackType: '二阶负反馈', shortTag: '耦合系统',
+                    description: '在校学生 M 与人才量 Q 为水准变量，速率 R1 与 R2 构成耦合系统，常出现振荡与超调。',
+                    sourceHint: '教材例题 5-7：交通运输类人才培养系统',
+                    primaryVars: [{key: 'Q', label: '人才量 (Q)', color: '#3b82f6'}, {key: 'M', label: '在校生 (M)', color: '#8b5cf6'}, {key: 'Y', label: '期望人才 (Y)', color: '#ef4444', dash: [5,5]}], 
+                    secondaryVars: [{key: 'R1', label: '招生速率 (R1)', color: '#10b981'}, {key: 'R2', label: '毕业速率 (R2)', color: '#f59e0b'}], 
+                    timeLabel: '时间（年）',
+                    params: [
+                        { key: 'M', label: '初始在校生 M', value: 2000, min: 0, max: 8000, step: 50 },
+                        { key: 'Q', label: '初始人才量 Q', value: 1000, min: 0, max: 8000, step: 50 },
+                        { key: 'Y', label: '期望人才量 Y', value: 6000, min: 1000, max: 12000, step: 100 },
+                        { key: 'Z', label: '调整时间 Z', value: 5, min: 1, max: 20, step: 0.5 },
+                        { key: 'W', label: '学制 W', value: 4, min: 1, max: 10, step: 0.5 },
+                        { key: 'DT', label: '时间步长 DT', value: 1, min: 0.1, max: 2, step: 0.1 },
+                        { key: 'steps', label: '仿真步数', value: 30, min: 8, max: 100, step: 1 }
+                    ],
+                    equations: [
+                        { type: '水准方程', text: '\\mathrm{L}\\;M\\cdot K = M\\cdot J + DT * (R1\\cdot JK - R2\\cdot JK)' },
+                        { type: '赋初值', text: '\\mathrm{N}\\;M = 2000' },
+                        { type: '速率方程', text: '\\mathrm{R}\\;R1\\cdot KL = D\\cdot K / Z' },
+                        { type: '辅助方程', text: '\\mathrm{A}\\;D\\cdot K = Y - Q\\cdot K' },
+                        { type: '常量方程', text: '\\mathrm{C}\\;Z = 5' },
+                        { type: '常量方程', text: '\\mathrm{C}\\;Y = 6000' },
+                        { type: '速率方程', text: '\\mathrm{R}\\;R2\\cdot KL = M\\cdot K / W' },
+                        { type: '常量方程', text: '\\mathrm{C}\\;W = 4' },
+                        { type: '水准方程', text: '\\mathrm{L}\\;Q\\cdot K = Q\\cdot J + DT * R2\\cdot JK' },
+                        { type: '赋初值', text: '\\mathrm{N}\\;Q = 1000' }
+                    ],
+                    stepsGuide: [
+                        { title: '1. 模型识别', concept: '包含水准 M 和 Q。招生率 R1 与毕业率 R2 分别连接，辅助变量 D 表示供需差。', points: ['水准变量：M、Q', '速率变量：R1、R2', '辅助变量：D', '常量：Y、Z、W'], math: '\\text{Coupled System}', demo: '双积分环节引发延迟。', tip: '多阶系统必然伴随内部延迟效应。' },
+                        { title: '2. 方程配置', concept: '按照教材 DYNAMO 写法配置 10 个方程。', points: ['L M·K = M·J + DT*(R1-R2)', 'L Q·K = Q·J + DT*R2'], math: '\\Delta M = R1 - R2', demo: '配置所有变量与参数。', tip: '注意 M 变量是一个具有双重流率（一进一出）的特殊水准变量。' },
+                        { title: '3. 速率计算', concept: '先算 D = Y - Q，再算 R1 = D / Z；同时 R2 = M / W。', points: ['双重速率并行'], math: 'R1 = \\frac{D}{Z}, R2 = \\frac{M}{W}', demo: '初态 R1 = 1000, R2 = 500', tip: '速率计算的先后顺序反映了信息的流动。' },
+                        { title: '4. 水准更新', concept: 'R1 使 M 增加，R2 使 M 减少并推动 Q 增加，两水准同步更新。', points: ['链式库存更新'], math: 'M(t)=M(t-dt)+(R1-R2)dt', demo: '学生从 M 流入 Q，总量在系统中转移。', tip: '物质和能量在系统中守恒，只是形态发生了转换。' },
+                        { title: '5. 响应判读', concept: '常表现为超调、振荡衰减后再趋于稳定。', points: ['阻尼振荡/超调'], math: 'Q_{max} > Y', demo: 'Q 可能一度超过 6000 的期望值。', tip: '这解释了为何盲目扩招往往会导致随后的就业过剩。' }
+                    ],
+                    codeBlock: `def simulate_second_order(M=2000, Q=1000, Y=6000, Z=5, W=4, DT=1.0, steps=30):\n    time = [0]\n    M_list = [M]\n    Q_list = [Q]\n    D_list = [Y - Q]\n    R1_list = [D_list[0] / Z]\n    R2_list = [M / W]\n    for k in range(steps):\n        current_M = M_list[-1]\n        current_Q = Q_list[-1]\n        current_D = Y - current_Q\n        current_R1 = current_D / Z\n        current_R2 = current_M / W\n        next_M = current_M + DT * (current_R1 - current_R2)\n        next_Q = current_Q + DT * current_R2\n        D_list[-1] = current_D\n        R1_list[-1] = current_R1\n        R2_list[-1] = current_R2\n        M_list.append(next_M)\n        Q_list.append(next_Q)\n        time.append(k + 1)\n        if k < steps - 1:\n            D_list.append(Y - next_Q)\n            R1_list.append((Y - next_Q) / Z)\n            R2_list.append(next_M / W)\n    return time, M_list, Q_list, R1_list, R2_list, D_list`,
+                    diagram: {
+                        nodes: [ { id: 'src', type: 'cloud', x: 50, y: 215, label: '源' }, { id: 'r1', type: 'valve', x: 170, y: 215, label: 'R1' }, { id: 'm', type: 'stock', x: 315, y: 215, label: 'M\\n在校学生' }, { id: 'r2', type: 'valve', x: 465, y: 215, label: 'R2' }, { id: 'q', type: 'stock', x: 610, y: 215, label: 'Q\\n人才量' }, { id: 'sink', type: 'cloud', x: 765, y: 215, label: '汇' }, { id: 'd', type: 'aux', x: 455, y: 370, label: 'D\\n供需差' }, { id: 'y', type: 'aux', x: 660, y: 370, label: 'Y\\n期望人才' }, { id: 'z', type: 'aux', x: 155, y: 365, label: 'Z\\n调整时间' }, { id: 'w', type: 'aux', x: 465, y: 80, label: 'W\\n学制' } ],
+                        links: [ { from: 'src', to: 'r1', type: 'flow' }, { from: 'r1', to: 'm', type: 'flow' }, { from: 'm', to: 'r2', type: 'flow' }, { from: 'r2', to: 'q', type: 'flow' }, { from: 'q', to: 'sink', type: 'flowInvisible' }, { from: 'q', to: 'd', type: 'info' }, { from: 'y', to: 'd', type: 'info' }, { from: 'd', to: 'r1', type: 'info' }, { from: 'z', to: 'r1', type: 'info' }, { from: 'm', to: 'r2', type: 'info' }, { from: 'w', to: 'r2', type: 'info' } ]
+                    }
+                }
+            ]
+        };
+
+        let sdState = { modelIndex: 0, params: {}, allParams: {}, result: null, primaryChart: null, secondaryChart: null, compareChart: null, playbackIndex: 0, playTimer: null, drag: { active: false, startX: 0, startY: 0, origX: 0, origY: 0 }, diagramTransform: { x: 0, y: 0, scale: 1 } };
+        
+        function getSDModel() { return SD_CONFIG.models[sdState.modelIndex]; }
+        
+        function initSDParamsForCurrentModel() {
+            SD_CONFIG.models.forEach(m => {
+                if(!sdState.allParams[m.id]) {
+                    sdState.allParams[m.id] = {};
+                    m.params.forEach(p => sdState.allParams[m.id][p.key] = p.value);
+                }
+            });
+            const m = getSDModel();
+            sdState.params = sdState.allParams[m.id];
+        }
+
+        function renderSDParams() {
+            const m = getSDModel();
+            let html = m.params.map(p => `
+                <div>
+                    <label class="text-sm font-bold text-slate-500 flex justify-between"><span>${p.label}</span><span class="text-blue-500 font-mono">${p.min} ~ ${p.max}</span></label>
+                    <div class="flex gap-3 items-center mt-2">
+                        <input type="range" id="sd-slide-${p.key}" class="flex-grow scale-slider" min="${p.min}" max="${p.max}" step="${p.step}" value="${sdState.params[p.key]}" oninput="syncSDParam('${p.key}', this.value, false)">
+                        <input type="number" id="sd-num-${p.key}" class="w-24 border rounded px-1 py-1 text-sm font-mono bg-blue-50 text-blue-900 text-center shadow-inner" step="${p.step}" value="${sdState.params[p.key]}" onchange="syncSDParam('${p.key}', this.value, true)">
+                    </div>
+                </div>
+            `).join('');
+            
+            // 增加重置按钮
+            html += `<button onclick="resetSDParams()" class="w-full mt-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded text-sm font-bold transition-all border border-slate-300 shadow-sm"><i class="fa-solid fa-rotate-left mr-1"></i> 还原教材原始参数</button>`;
+            
+            document.getElementById('sd-param-form').innerHTML = html;
+        }
+        
+        function resetSDParams() {
+            const m = getSDModel();
+            m.params.forEach(p => {
+                sdState.params[p.key] = p.value;
+                sdState.allParams[m.id][p.key] = p.value;
+            });
+            sdStopPlayback();
+            sdState.playbackIndex = 0;
+            updateSDAll();
+        }
+
+        function syncSDParam(key, val, fromNumInput) {
+            let num = parseFloat(val); if(isNaN(num)) return;
+            sdState.params[key] = num;
+            sdState.allParams[getSDModel().id][key] = num; 
+            
+            if(fromNumInput) {
+                let slide = document.getElementById(`sd-slide-${key}`);
+                if (slide) slide.value = num;
+            } else {
+                let numInput = document.getElementById(`sd-num-${key}`);
+                if (numInput) numInput.value = num;
+            }
+            
+            sdStopPlayback(); sdState.playbackIndex = 0; runSDSimulation();
+        }
+
+        function runSDSimulation() {
+            const m = getSDModel(); const p = sdState.params; let res;
+            if (m.id === 'sd_pos') {
+                const steps = p.steps; const DT = p.DT; const C1 = p.C1; let L1 = p.L1; const rows = [];
+                for(let k=0; k<=steps; k++) { const R1 = L1*C1; rows.push({t:k, L1, R1}); L1 += DT*R1; }
+                res = { time: rows.map(r=>r.t), rows, primaryKey: 'L1', secondaryKeys: ['R1'] };
+            } else if (m.id === 'sd_neg') {
+                const steps = p.steps; const DT = p.DT; const W = p.W; const Y = p.Y; let D = p.D; const rows = [];
+                for(let k=0; k<=steps; k++) { const X = Y-D; const R1 = X/W; rows.push({t:k, D, X, R1, Y}); D += DT*R1; }
+                res = { time: rows.map(r=>r.t), rows, primaryKey: 'D', secondaryKeys: ['R1', 'X'] };
+            } else {
+                const steps = p.steps; const DT = p.DT; const Z = p.Z; const W = p.W; const Y = p.Y; let M = p.M; let Q = p.Q; const rows = [];
+                for(let k=0; k<=steps; k++) { const D_diff = Y-Q; const R1 = D_diff/Z; const R2 = M/W; rows.push({t:k, M, Q, D: D_diff, R1, R2, Y}); M += DT*(R1-R2); Q += DT*R2; }
+                res = { time: rows.map(r=>r.t), rows, primaryKey: 'Q', secondaryKeys: ['M', 'R1', 'R2', 'D'] };
+            }
+            sdState.result = res;
+            
+            let banner = ''; const first = res.rows[0]; const last = res.rows[res.rows.length-1];
+            if (m.id === 'sd_pos') banner = `当前系统呈现 <strong>单水准变量正反馈放大</strong>：主变量 <strong>L1</strong> 从 ${first.L1.toFixed(2)} 增长到 ${last.L1.toFixed(2)}。`;
+            else if (m.id === 'sd_neg') banner = `当前系统呈现 <strong>一阶负反馈收敛</strong>：主变量 <strong>D</strong> 逐步逼近期望目标 <strong>${p.Y}</strong>。`;
+            else banner = `当前系统呈现 <strong>二阶负反馈耦合</strong>：双重水准变量导致系统存在延迟，主变量 <strong>Q</strong> 在逼近 <strong>${p.Y}</strong> 的过程中会出现调整与超调现象。`;
+            document.getElementById('sd-insight-banner').innerHTML = `<i class="fa-solid fa-wand-magic-sparkles mr-2 text-xl align-middle text-amber-500"></i> ` + banner;
+
+            let kpis = [];
+            if(m.id === 'sd_pos') kpis = [['初始 L1', first.L1.toFixed(2)], ['末期 L1', last.L1.toFixed(2)], ['末期 R1', last.R1.toFixed(2)], ['放大倍数', (last.L1/first.L1).toFixed(2)]];
+            else if(m.id === 'sd_neg') kpis = [['初始 D', first.D.toFixed(2)], ['末期 D', last.D.toFixed(2)], ['末期 X', last.X.toFixed(2)], ['末期 R1', last.R1.toFixed(2)]];
+            else kpis = [['末期 Q', last.Q.toFixed(2)], ['末期 M', last.M.toFixed(2)], ['末期 D', last.D.toFixed(2)], ['末期 R2', last.R2.toFixed(2)]];
+            document.getElementById('sd-kpi-grid').innerHTML = kpis.map(k => `<div class="p-4 bg-slate-50 border rounded-lg text-center shadow-inner"><div class="text-xs text-slate-500 font-bold">${k[0]}</div><div class="text-2xl font-black text-slate-800 mt-1">${k[1]}</div></div>`).join('');
+
+            updateSDPlaybackUI();
+            renderSDCharts();
+            renderSDTable();
+            if(!document.getElementById('sd-tab-analysis').classList.contains('hidden')) renderSDAnalysis();
+        }
+
+        function renderSDCharts() {
+            // 核心修复：每次渲染前，必须将画布容器的内层完全替换，确保图表实例被干净地销毁和重建
+            if(sdState.primaryChart) { sdState.primaryChart.destroy(); sdState.primaryChart = null; }
+            if(sdState.secondaryChart) { sdState.secondaryChart.destroy(); sdState.secondaryChart = null; }
+            
+            document.getElementById('sd-primary-chart-container').innerHTML = '<canvas id="sd-primary-chart"></canvas>';
+            document.getElementById('sd-secondary-chart-container').innerHTML = '<canvas id="sd-secondary-chart"></canvas>';
+
+            const m = getSDModel(); const res = sdState.result; const row0 = res.rows[sdState.playbackIndex];
+            
+            let primaryDatasets = m.primaryVars.map(v => ({ label: v.label, data: res.rows.map(r => r[v.key]), borderColor: v.color, backgroundColor: v.color+'1A', fill: !v.dash, tension: 0.2, borderWidth: v.dash ? 2 : 3, borderDash: v.dash || [] }));
+            primaryDatasets.push({ label: '当前播放点', data: res.rows.map((_, i) => i === sdState.playbackIndex ? row0[m.primaryVars[0].key] : null), borderColor: '#ef4444', backgroundColor: '#ef4444', pointRadius: 6, type: 'line', showLine: false });
+
+            let secondaryDatasets = m.secondaryVars.map((v, i) => ({ label: v.label, data: res.rows.map(r => r[v.key]), borderColor: v.color, borderWidth: 2, tension: 0.2 }));
+            secondaryDatasets.push(...m.secondaryVars.map(v => ({ label: `${v.key} 当前点`, data: res.rows.map((_, i) => i === sdState.playbackIndex ? row0[v.key] : null), borderColor: '#ef4444', backgroundColor: '#ef4444', pointRadius: 4, type: 'line', showLine: false })));
+
+            const commonOpts = { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 10, padding: 15 } } }, animation: { duration: 0 }, scales: { x: { grid: { display: false } }, y: { grid: { color: '#f1f5f9' } } } };
+
+            sdState.primaryChart = new Chart(document.getElementById('sd-primary-chart').getContext('2d'), { type: 'line', data: { labels: res.time, datasets: primaryDatasets }, options: commonOpts });
+            sdState.secondaryChart = new Chart(document.getElementById('sd-secondary-chart').getContext('2d'), { type: 'line', data: { labels: res.time, datasets: secondaryDatasets }, options: commonOpts });
+        }
+
+        function updateSDPlaybackUI() {
+            const range = document.getElementById('sd-playback-range');
+            range.max = sdState.result.rows.length - 1;
+            range.value = sdState.playbackIndex;
+            document.getElementById('sd-playback-step').innerText = `当前时步: ${sdState.playbackIndex}`;
+            
+            if(sdState.primaryChart && sdState.secondaryChart) {
+                const row = sdState.result.rows[sdState.playbackIndex]; const m = getSDModel();
+                sdState.primaryChart.data.datasets[m.primaryVars.length].data = sdState.result.rows.map((_, i) => i === sdState.playbackIndex ? row[m.primaryVars[0].key] : null);
+                sdState.primaryChart.update('none');
+                
+                m.secondaryVars.forEach((v, idx) => { sdState.secondaryChart.data.datasets[m.secondaryVars.length + idx].data = sdState.result.rows.map((_, i) => i === sdState.playbackIndex ? row[v.key] : null); });
+                sdState.secondaryChart.update('none');
+            }
+            
+            // 核心修复: 移除页面跳动 (scrollIntoView), 仅更新颜色样式
+            const tbody = document.getElementById('sd-result-table').querySelector('tbody');
+            if(tbody) { Array.from(tbody.children).forEach((tr, i) => { if (i === sdState.playbackIndex) { tr.classList.add('current-row'); } else { tr.classList.remove('current-row'); } }); }
+        }
+
+        function renderSDTable() {
+            const keys = Object.keys(sdState.result.rows[0]);
+            let html = `<thead><tr>${keys.map(k => `<th>${k}</th>`).join('')}</tr></thead><tbody>`;
+            html += sdState.result.rows.map((row, i) => `<tr>${keys.map(k => `<td>${Number.isInteger(row[k]) ? row[k] : row[k].toFixed(4)}</td>`).join('')}</tr>`).join('');
+            html += `</tbody>`;
+            document.getElementById('sd-result-table').innerHTML = html;
+            updateSDPlaybackUI();
+        }
+
+        document.getElementById('sd-playback-range').addEventListener('input', (e) => { sdStopPlayback(); sdState.playbackIndex = Number(e.target.value); updateSDPlaybackUI(); });
+        document.getElementById('sd-play-btn').addEventListener('click', () => { sdStopPlayback(); sdState.playTimer = setInterval(() => { if (sdState.playbackIndex >= sdState.result.rows.length - 1) { sdStopPlayback(); return; } sdState.playbackIndex++; updateSDPlaybackUI(); }, 600); });
+        document.getElementById('sd-pause-btn').addEventListener('click', () => sdStopPlayback());
+        document.getElementById('sd-reset-btn').addEventListener('click', () => { sdStopPlayback(); sdState.playbackIndex = 0; updateSDPlaybackUI(); });
+        function sdStopPlayback() { if (sdState.playTimer) clearInterval(sdState.playTimer); }
+
+        function renderSDDiagram() {
+            const m = getSDModel();
+            
+            // 核心修复：极度优雅的 DYNAMO 方程排版
+            let eqsHtml = m.equations.map((eq, idx) => `<div class="p-3 bg-slate-50 border border-slate-200 rounded-lg shadow-inner flex flex-col xl:flex-row items-center gap-4"><span class="w-full xl:w-28 rounded bg-blue-100 text-blue-800 font-bold flex items-center justify-center text-sm shadow-sm py-1.5 shrink-0 border border-blue-200">${eq.type}</span><div id="sd-eq-${idx}" class="font-serif text-2xl flex-grow text-center text-slate-800 py-1 overflow-x-auto hide-scroll"></div></div>`).join('');
+            document.getElementById('sd-equation-list').innerHTML = `<div class="space-y-4 py-2">${eqsHtml}</div>`;
+            m.equations.forEach((eq, idx) => { MathRenderer.renderStep(`sd-eq-${idx}`, `$$${eq.text}$$`); });
+            
+            const diagram = m.diagram;
+            const nodeMap = Object.fromEntries(diagram.nodes.map(n => [n.id, n]));
+            const lines = diagram.links.map(link => {
+                const f = nodeMap[link.from]; const t = nodeMap[link.to]; const bend = link.bend ?? 0;
+                if(link.type.startsWith('flow')) return `<line x1="${f.x}" y1="${f.y}" x2="${t.x}" y2="${t.y}" stroke="#334155" stroke-width="4" marker-end="url(#sdArrowFlow)" ${link.type==='flowInvisible'?'opacity="0.2"':''}/>`;
+                return `<path d="M ${f.x} ${f.y} Q ${(f.x+t.x)/2} ${(f.y+t.y)/2 + bend} ${t.x} ${t.y}" fill="none" stroke="#64748b" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#sdArrowInfo)"/>`;
+            }).join('');
+            const nodes = diagram.nodes.map(n => {
+                const texts = n.label.split('\\n').map((p,i) => `<tspan x="${n.x}" dy="${i===0?0:18}">${p}</tspan>`).join('');
+                if(n.type === 'stock') return `<rect x="${n.x-50}" y="${n.y-30}" width="100" height="60" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/><text x="${n.x}" y="${n.y-4}" text-anchor="middle" fill="#1e3a8a" font-size="14" font-weight="bold">${texts}</text>`;
+                if(n.type === 'aux') return `<circle cx="${n.x}" cy="${n.y}" r="35" fill="#f0fdf4" stroke="#10b981" stroke-width="2"/><text x="${n.x}" y="${n.y-4}" text-anchor="middle" fill="#064e3b" font-size="14" font-weight="bold">${texts}</text>`;
+                if(n.type === 'valve') return `<polygon points="${n.x-15},${n.y} ${n.x},${n.y-15} ${n.x+15},${n.y} ${n.x},${n.y+15}" fill="#334155"/><text x="${n.x}" y="${n.y-22}" text-anchor="middle" font-size="14" font-weight="bold" fill="#334155">${n.label}</text>`;
+                return `<path d="M ${n.x-20} ${n.y} C ${n.x-40} ${n.y-20}, ${n.x} ${n.y-30}, ${n.x+20} ${n.y} C ${n.x+40} ${n.y+20}, ${n.x} ${n.y+30}, ${n.x-20} ${n.y}" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/><text x="${n.x}" y="${n.y+40}" text-anchor="middle" font-size="12" fill="#64748b">${n.label}</text>`;
+            }).join('');
+            
+            const svg = `<svg width="860" height="480" viewBox="0 0 860 480" xmlns="http://www.w3.org/2000/svg"><defs><marker id="sdArrowFlow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker><marker id="sdArrowInfo" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker></defs>${lines}${nodes}</svg>`;
+            document.getElementById('sd-diagram-container').innerHTML = svg;
+            
+            // 核心修复：自动测算节点边界，无论如何切换模型，SVG都能智能居中显示
+            const xs = diagram.nodes.map(n=>n.x); const ys = diagram.nodes.map(n=>n.y);
+            const cx = (Math.min(...xs) + Math.max(...xs)) / 2; const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+            let stageWidth = document.getElementById('sd-diagram-stage').clientWidth || 860;
+            sdState.diagramTransform = {x: (stageWidth/2 - cx), y: (240 - cy), scale: 1}; 
+            applySDDiagramTransform();
+        }
+
+        function applySDDiagramTransform() { document.getElementById('sd-diagram-container').style.transform = `translate(${sdState.diagramTransform.x}px, ${sdState.diagramTransform.y}px) scale(${sdState.diagramTransform.scale})`; }
+        
+        function bindSDDiagramInteraction() {
+            const stage = document.getElementById('sd-diagram-stage');
+            stage.addEventListener('wheel', e => { e.preventDefault(); sdState.diagramTransform.scale = Math.min(2.5, Math.max(0.5, sdState.diagramTransform.scale + (e.deltaY<0?0.1:-0.1))); applySDDiagramTransform(); }, { passive: false });
+            stage.addEventListener('mousedown', e => { sdState.drag.active = true; sdState.drag.startX = e.clientX; sdState.drag.startY = e.clientY; sdState.drag.origX = sdState.diagramTransform.x; sdState.drag.origY = sdState.diagramTransform.y; stage.classList.add('dragging'); });
+            window.addEventListener('mousemove', e => { if (!sdState.drag.active) return; sdState.diagramTransform.x = sdState.drag.origX + (e.clientX - sdState.drag.startX); sdState.diagramTransform.y = sdState.drag.origY + (e.clientY - sdState.drag.startY); applySDDiagramTransform(); });
+            window.addEventListener('mouseup', () => { sdState.drag.active = false; stage.classList.remove('dragging'); });
+            stage.addEventListener('dblclick', () => { renderSDDiagram(); }); 
+        }
+
+        function showStepSD(idx) {
+            document.querySelectorAll('.sd-step-btn').forEach((b, i) => { b.classList.toggle('step-btn-active', i===idx); b.classList.toggle('text-slate-600', i!==idx); b.classList.toggle('bg-slate-50', i!==idx); }); 
+            const m = getSDModel(); const d = m.stepsGuide[idx];
+            let htmlContent = `<div class="space-y-6 animate-fadeIn">
+                <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-3"><span class="bg-blue-600 text-white w-8 h-8 rounded text-base flex items-center justify-center shadow-md">${idx+1}</span> ${d.title}</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-5"><div><span class="text-sm font-bold text-slate-500 uppercase tracking-wider">理论概念说明</span><p class="text-slate-700 text-base mt-2 leading-relaxed">${d.concept}</p></div><div><span class="text-sm font-bold text-slate-500 uppercase tracking-wider">该步骤核心要点</span><ul class="list-disc list-inside text-base text-slate-700 mt-2 space-y-1">${d.points.map(p=>`<li>${p}</li>`).join('')}</ul></div><div class="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-lg text-sm shadow-sm mt-4"><i class="fa-solid fa-lightbulb text-yellow-500 mr-2 text-lg"></i><b>教学提示：</b>${d.tip}</div></div>
+                    <div class="space-y-5"><div><span class="text-sm font-bold text-slate-500 uppercase tracking-wider">核心数学/结构解析</span><div class="math-card text-center text-3xl py-8 shadow-inner">$$${d.math}$$</div></div><div><span class="text-sm font-bold text-slate-500 uppercase tracking-wider">系统演示表现</span><div class="p-4 bg-slate-50 border rounded-lg font-mono text-base text-slate-600 shadow-sm mt-2">${d.demo}</div></div></div>
+                </div></div>`;
+            MathRenderer.renderStep('sd-step-content', htmlContent);
+        }
+
+        function renderSDAnalysis() {
+            const simulateFast = (modelId) => {
+                let p = sdState.allParams[modelId];
+                if (modelId === 'sd_pos') { let L1 = p.L1; for(let k=0; k<=p.steps; k++) { L1 += p.DT * (L1*p.C1); } return p.L1 === 0 ? 0 : (L1 / p.L1); }
+                if (modelId === 'sd_neg') { let D = p.D; for(let k=0; k<=p.steps; k++) { D += p.DT * ((p.Y-D)/p.W); } return p.D === 0 ? 0 : (D / p.D); }
+                if (modelId === 'sd_sec') { let M=p.M, Q=p.Q; for(let k=0; k<=p.steps; k++) { let R1=(p.Y-Q)/p.Z, R2=M/p.W; M+=p.DT*(R1-R2); Q+=p.DT*R2; } return p.Q === 0 ? 0 : (Q / p.Q); }
+            };
+
+            if(sdState.compareChart) { sdState.compareChart.destroy(); sdState.compareChart = null; }
+            document.getElementById('sd-compare-chart-container').innerHTML = '<canvas id="sd-compare-chart"></canvas>';
+            
+            sdState.compareChart = new Chart(document.getElementById('sd-compare-chart').getContext('2d'), {
+                type: 'bar',
+                data: { labels: ['一阶正反馈 (指数爆炸)', '一阶负反馈 (目标收敛)', '二阶负反馈 (振荡衰减)'], datasets: [{ label: '主变量末期 / 初始倍数', data: [simulateFast('sd_pos'), simulateFast('sd_neg'), simulateFast('sd_sec')], backgroundColor: ['#ef4444', '#10b981', '#8b5cf6'], borderRadius: 6 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false }, ticks: { font: { size: 14, weight: 'bold' } } } } }
+            });
+        }
+
+        function switchTabSD(tabId) {
+            document.querySelectorAll('#app-sd > section').forEach(s => s.classList.add('hidden')); document.getElementById(`sd-tab-${tabId}`).classList.remove('hidden');
+            document.querySelectorAll('#app-sd .nav-active').forEach(l => { l.classList.remove('nav-active'); l.classList.add('text-slate-600', 'bg-transparent'); });
+            let act = document.getElementById(`sd-nav-${tabId}`); act.classList.remove('text-slate-600', 'bg-transparent'); act.classList.add('nav-active');
+            if(tabId === 'diagram') { renderSDDiagram(); }
+            if(tabId === 'steps') { showStepSD(0); }
+            if(tabId === 'analysis') { renderSDAnalysis(); }
+        }
+
+        function updateSDAll() {
+            // 核心修复代码：注入纯HTML绕过 highlight.js 销毁卡死问题
+            document.getElementById('sd-code-title').innerText = getSDModel().name + ' Python 源码';
+            const codeBlock = document.getElementById('sd-code-block');
+            codeBlock.innerHTML = hljs.highlight(getSDModel().codeBlock, {language: 'python'}).value;
+            
+            renderSDParams(); runSDSimulation(); switchTabSD('sandbox');
+            
+            // 后台隐式刷新其它 tab 内容，确保随时可以查看最新例题的数据
+            if(!document.getElementById('sd-tab-diagram').classList.contains('hidden')) renderSDDiagram();
+            if(!document.getElementById('sd-tab-steps').classList.contains('hidden')) showStepSD(0);
+            if(!document.getElementById('sd-tab-analysis').classList.contains('hidden')) renderSDAnalysis();
+        }
+
+        // ================= 全局系统启动 =================
+        window.onload = () => {
+            const commonOpts = { responsive: true, maintainAspectRatio: false };
+            gmSandboxChart = new Chart(document.getElementById('gm-sandboxChart').getContext('2d'), { type: 'line', data: { labels: [], datasets: [ { label: '真实观测', data: [], borderColor: '#94a3b8', backgroundColor: '#94a3b8', borderWidth: 2, pointStyle: 'rect', tension: 0 }, { label: '拟合曲线', data: [], borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.1)', fill: true, borderDash: [4, 4], tension: 0.3 } ] }, options: { ...commonOpts, plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 10, padding: 15 } } }, scales: { y: { grid: { color: '#f1f5f9' } }, x: { grid: { color: '#f1f5f9' } } } } });
+            gmAnalysisChart = new Chart(document.getElementById('gm-analysisChart').getContext('2d'), { type: 'line', options: { ...commonOpts, plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 10, padding: 15 } } } } });
+            ahpSandboxChart = new Chart(document.getElementById('ahp-sandboxChart').getContext('2d'), { type: 'bar', data: { labels: AHP_ALTS, datasets: [{ label: '全局动态总得分', data: [0,0,0,0], backgroundColor: '#94a3b8', borderRadius: 6 }] }, options: { ...commonOpts, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, suggestedMax: 0.5, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } } } });
+            ahpRadarChart = new Chart(document.getElementById('ahp-radarChart').getContext('2d'), { type: 'radar', data: { labels: AHP_CRITERIA, datasets: [] }, options: { ...commonOpts, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 12, padding: 15, font: { size: 14 } } } }, scales: { r: { beginAtZero: true, suggestedMax: 0.6 } } } });
+            gahpMainChart = new Chart(document.getElementById('gahp-mainChart').getContext('2d'), { type: 'bar', data: { labels: GAHP_INDICATORS.map(ind => ind.name), datasets: [{ label: '指标综合权重', data: [], backgroundColor: '#3b82f6', borderRadius: 6 }] }, options: { indexAxis: 'y', ...commonOpts, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, max: 0.15, grid: { color: '#f1f5f9' } }, y: { grid: { display: false }, ticks: { font: { size: 12, weight: 'bold' } } } } } });
+
+            hljs.highlightAll();
+            
+            computeAllAHP(); selectMatrixAHP('CG');
+            updateGAHPExpert1(); renderSlidersGAHP(); selectMatrixGAHPExp1('BA');
+            
+            initSDParamsForCurrentModel();
+            bindSDDiagramInteraction();
+            
+            // 自动加载第一项
+            document.getElementById('main-app-selector').value = 'gm';
+            switchApp('gm');
+        };
+    </script>
+</body>
+</html>
